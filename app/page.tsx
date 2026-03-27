@@ -239,7 +239,7 @@ export default function LessenApp() {
   const [joinDone, setJoinDone] = useState(false);
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedHelper, setSelectedHelper] = useState(null);
-  const t = T[lang];
+  const t = T[lang as keyof typeof T];
 
   const navigate = (p) => { setPage(p); window.scrollTo(0,0); };
 
