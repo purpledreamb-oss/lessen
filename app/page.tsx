@@ -347,7 +347,7 @@ export default function LessenApp() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18, transition: "all 0.3s" }}>
             {visibleHelpers.map((h, i) => {
-              const globalIdx = t.helpersPage.helpers.indexOf(h);
+              const globalIdx = carouselIndex + i;
               return (
                 <div key={globalIdx} className="helper-card fade-in" style={{ cursor: "pointer" }}
                   onClick={() => { setSelectedHelper(globalIdx); navigate("helpers"); }}>
