@@ -237,17 +237,17 @@ export default function LessenApp() {
   const [bookStep, setBookStep] = useState(1);
   const [bookDone, setBookDone] = useState(false);
   const [joinDone, setJoinDone] = useState(false);
-  const [selectedServices, setSelectedServices] = useState([]);
-  const [selectedHelper, setSelectedHelper] = useState(null);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedHelper, setSelectedHelper] = useState<number | null>(null);
   const t = T[lang as keyof typeof T];
 
-  const navigate = (p) => { setPage(p); window.scrollTo(0,0); };
+  const navigate = (p: string) => { setPage(p); window.scrollTo(0,0); };
 
-  const toggleService = (s) => {
+  const toggleService = (s: string) => {
     setSelectedServices(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
   };
 
-  const serviceColors = { "家教陪讀": "#8B7355", "Tutoring": "#8B7355", "居家管家": "#6B7A8B", "Home Helper": "#6B7A8B", "陪玩姊姊": "#7A8B6F", "Playmate": "#7A8B6F" };
+  const serviceColors: Record<string, string> = { "家教陪讀": "#8B7355", "Tutoring": "#8B7355", "居家管家": "#6B7A8B", "Home Helper": "#6B7A8B", "陪玩姊姊": "#7A8B6F", "Playmate": "#7A8B6F" };
   const serviceMap = lang === "zh" ? ["家教陪讀", "居家管家", "陪玩姊姊"] : ["Tutoring", "Home Helper", "Playmate"];
   const filterMap = lang === "zh"
     ? { all: "全部", "家教陪讀": t.helpersPage.filter1, "居家管家": t.helpersPage.filter2, "陪玩姊姊": t.helpersPage.filter3 }
