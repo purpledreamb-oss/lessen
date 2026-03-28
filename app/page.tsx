@@ -281,4 +281,15 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer>
-        <div className
+        <div className="footer-inner">
+          <div className="footer-brand">
+            <span className="logo-icon logo-icon-sm">L</span>
+            <span className="footer-logo-text">Lessen</span>
+          </div>
+          <p className="footer-disclaimer">Lessen 為媒合平台，僅協助家長與服務提供者建立聯繫，不對服務內容、品質或任何因使用本平台所產生的損失負責。所有服務提供者均為獨立個人，非本平台員工。使用本平台即代表您同意以上條款。</p>
+          <p className="footer-copy">© 2025 Lessen. All rights reserved.</p>
+        </div>
+      </footer>
+    </>
+  );
+}
