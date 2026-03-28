@@ -153,8 +153,9 @@ export default function Home() {
             <span className="logo-text">Lessen</span>
           </a>
           <nav className="header-nav">
-            <a href="#cta-helper" className="nav-link">幫手入口</a>
-            <a href="#cta" className="nav-cta-btn">立即預約</a>
+            <a href="/register/helper" className="nav-link">幫手入口</a>
+            <a href="/login" className="nav-link">登入</a>
+            <a href="/register" className="nav-cta-btn">免費註冊</a>
           </nav>
         </div>
       </header>
