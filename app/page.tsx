@@ -137,7 +137,7 @@ export default function Home() {
   ];
 
   const whyReasons = [
-    { icon: '🪪', title: '核對證件', desc: '媒合前我們會協助雙方確認身份，提供基本保障。' },
+    { icon: '🪪', title: '核對證件', desc: '建議家長在服務前請對方提供身分證件，自行確認身份。' },
     { icon: '🤝', title: '試做幾次再決定', desc: '不確定合不合適？先試做幾次，滿意再長期合作。' },
     { icon: '💬', title: '直接加 LINE 聯繫', desc: '媒合成功後，雙方直接加 LINE 溝通，彈性又方便。' },
     { icon: '💰', title: '免費使用', desc: '家長完全免費，不收任何平台費或服務費。' },
