@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 export default function Home() {
   const [navScrolled, setNavScrolled] = useState(false);
@@ -61,15 +61,20 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  // Carousel auto-play
-  useEffect(() => {
-    startAutoPlay();
-    return () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    };
+  const scrollToCard = useCallback((index: number) => {
+    const track = carouselRef.current;
+    if (!track) return;
+    const cards = track.querySelectorAll('.helper-card');
+    if (cards[index]) {
+      const card = cards[index] as HTMLElement;
+      track.scrollTo({
+        left: card.offsetLeft - track.offsetLeft - 4,
+        behavior: 'smooth',
+      });
+    }
   }, []);
 
-  function startAutoPlay() {
+  const startAutoPlay = useCallback(() => {
     if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     autoPlayRef.current = setInterval(() => {
       setCurrentIndex((prev) => {
@@ -78,20 +83,63 @@ export default function Home() {
         return next;
       });
     }, 4500);
-  }
+  }, [scrollToCard]);
 
-  function scrollToCard(index: number) {
+  // Carousel auto-play
+  useEffect(() => {
+    startAutoPlay();
+    return () => {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    };
+  }, [startAutoPlay]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        setCurrentIndex((prev) => {
+          const next = Math.max(0, prev - 1);
+          scrollToCard(next);
+          return next;
+        });
+        startAutoPlay();
+      }
+      if (e.key === 'ArrowRight') {
+        setCurrentIndex((prev) => {
+          const next = Math.min(prev + 1, cardCount - 1);
+          scrollToCard(next);
+          return next;
+        });
+        startAutoPlay();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [scrollToCard, startAutoPlay]);
+
+  // Scroll-based dot sync
+  useEffect(() => {
     const track = carouselRef.current;
     if (!track) return;
-    const cards = track.querySelectorAll('.helper-card');
-    if (cards[index]) {
-      (cards[index] as HTMLElement).scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start',
-      });
-    }
-  }
+    let scrollTimeout: NodeJS.Timeout;
+    const handleScroll = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const scrollLeft = track.scrollLeft;
+        const cards = track.querySelectorAll('.helper-card');
+        let closest = 0;
+        let minDist = Infinity;
+        cards.forEach((card, i) => {
+          const el = card as HTMLElement;
+          const dist = Math.abs(el.offsetLeft - track.offsetLeft - scrollLeft);
+          if (dist < minDist) { minDist = dist; closest = i; }
+        });
+        setCurrentIndex(closest);
+      }, 80);
+    };
+    track.addEventListener('scroll', handleScroll);
+    return () => track.removeEventListener('scroll', handleScroll);
+  }, []);
 
   function goToSlide(index: number) {
     const clamped = Math.max(0, Math.min(index, cardCount - 1));
@@ -142,11 +190,9 @@ export default function Home() {
   return (
     <>
       {/* NAV */}
-      <nav className={`nav ${navScrolled ? 'scrolled' : ''}`}>
+      <nav className={navScrolled ? 'scrolled' : ''}>
         <div className="nav-inner">
-          <div className="nav-logo">
-            Lessen<span className="nav-logo-sub">輕一點</span>
-          </div>
+          <div className="nav-logo">Lessen</div>
           <div className="nav-links">
             <a href="#helpers">家教</a>
             <a href="#helpers">陪玩姊姊</a>
@@ -165,8 +211,6 @@ export default function Home() {
 
       {/* HERO */}
       <section className="hero">
-        <div className="hero-bg-1" />
-        <div className="hero-bg-2" />
         <div className="hero-content">
           <div className="hero-badge reveal">
             <span className="dot" />
@@ -178,7 +222,7 @@ export default function Home() {
             剩下的，交給我們
           </h1>
           <p className="hero-subtitle reveal reveal-delay-2">
-            育兒不必事事親力親為。Lessen 輕一點，為你媒合通過審核的家教、陪玩姊姊與管家，
+            育兒不必事事親力親為。Lessen 為你媒合通過審核的家教、陪玩姊姊與管家，
             <br />
             讓你安心喘口氣，把時間還給自己。
           </p>
@@ -212,6 +256,7 @@ export default function Home() {
         <div className="section-header reveal">
           <div>
             <h2>認識我們的幫手</h2>
+            <p>每一位都經過面試審核，真心喜歡孩子</p>
           </div>
           <a href="#" className="view-all">查看全部 →</a>
         </div>
@@ -308,14 +353,12 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="site-footer">
-        <div className="footer-logo">
-          Lessen<span className="nav-logo-sub">輕一點</span>
-        </div>
+      <footer>
+        <div className="footer-logo">Lessen</div>
         <p className="footer-disclaimer">
-          Lessen 輕一點為媒合平台，僅提供家長與服務提供者之間的媒合服務，不對服務提供者的行為、服務品質或任何因使用本平台所產生的損失負責。所有服務提供者均為獨立個人，非本平台員工。家長在預約前請自行評估並了解服務內容。使用本平台即代表您同意本平台之服務條款與免責聲明。
+          Lessen 為媒合平台，僅提供家長與服務提供者之間的媒合服務，不對服務提供者的行為、服務品質或任何因使用本平台所產生的損失負責。所有服務提供者均為獨立個人，非本平台員工。家長在預約前請自行評估並了解服務內容。使用本平台即代表您同意本平台之服務條款與免責聲明。
         </p>
-        <p className="footer-copy">© 2026 Lessen 輕一點 · 從新竹出發</p>
+        <p className="footer-copy">© 2026 Lessen · 從新竹出發</p>
       </footer>
     </>
   );
