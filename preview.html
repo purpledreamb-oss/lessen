@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lessen 輕一點 - Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --sage: #8FA98B; --sage-light: #B8CCB5; --sage-pale: #E8F0E6;
+  --sage-dark: #5C7A58; --sage-deeper: #3D5A39;
+  --cream: #FAF8F4; --cream-warm: #F5F0E8;
+  --text-primary: #2C3E2B; --text-secondary: #5A6B59; --text-muted: #8A9689;
+  --white: #FFFFFF; --dark-bg: #1E2E1C; --dark-card: #283828;
+  --shadow-soft: 0 2px 20px rgba(44,62,43,0.06);
+  --shadow-card: 0 4px 30px rgba(44,62,43,0.08);
+  --shadow-hover: 0 8px 40px rgba(44,62,43,0.14);
+  --radius: 16px; --radius-sm: 10px; --radius-lg: 20px;
+  --transition: 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Noto Sans TC', sans-serif; color: var(--text-primary); background: var(--cream); overflow-x: hidden; line-height: 1.7; }
+
+.reveal { opacity: 1; transform: none; }
+
+/* HEADER */
+.site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(250,248,244,0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid rgba(143,169,139,0.08); }
+.header-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+.header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-icon { width: 36px; height: 36px; background: var(--sage); color: var(--white); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Noto Serif TC', serif; font-weight: 900; font-size: 1.1rem; }
+.logo-icon-sm { width: 28px; height: 28px; font-size: 0.85rem; border-radius: 8px; }
+.logo-text { font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.2rem; color: var(--text-primary); }
+.header-nav { display: flex; align-items: center; gap: 8px; }
+.nav-link { text-decoration: none; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; padding: 8px 16px; border-radius: 8px; transition: var(--transition); }
+.nav-link:hover { color: var(--sage-dark); background: var(--sage-pale); }
+.nav-cta-btn { text-decoration: none; background: var(--sage-dark); color: var(--white); padding: 9px 22px; border-radius: 100px; font-size: 0.9rem; font-weight: 600; transition: var(--transition); }
+.nav-cta-btn:hover { background: var(--sage-deeper); transform: translateY(-1px); }
+
+/* HERO */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; position: relative; overflow: hidden; background: linear-gradient(180deg, var(--sage-pale) 0%, var(--cream) 60%); }
+.hero-glow { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: 900px; height: 400px; background: radial-gradient(ellipse, rgba(143,169,139,0.18) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+.hero-content { position: relative; z-index: 1; max-width: 720px; }
+.hero-badge { display: inline-block; background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); color: var(--sage-dark); padding: 8px 20px; border-radius: 100px; font-size: 0.85rem; font-weight: 500; margin-bottom: 32px; border: 1px solid rgba(143,169,139,0.2); }
+.hero h1 { font-family: 'Noto Serif TC', serif; font-size: clamp(2.4rem,5.5vw,3.6rem); font-weight: 900; line-height: 1.35; color: var(--text-primary); margin-bottom: 20px; letter-spacing: -0.02em; }
+.hero h1 em { font-style: normal; background: linear-gradient(135deg, var(--sage-dark) 0%, var(--sage) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.85; margin-bottom: 40px; font-weight: 300; }
+.hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+/* BUTTONS */
+.btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--sage-dark); color: var(--white); padding: 14px 32px; border-radius: 100px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: var(--transition); box-shadow: 0 4px 16px rgba(92,122,88,0.25); }
+.btn-primary:hover { background: var(--sage-deeper); transform: translateY(-2px); }
+.btn-ghost { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text-secondary); padding: 14px 32px; border-radius: 100px; text-decoration: none; font-weight: 500; font-size: 1rem; border: 1.5px solid rgba(143,169,139,0.3); transition: var(--transition); }
+.btn-ghost:hover { border-color: var(--sage); color: var(--sage-dark); background: rgba(232,240,230,0.5); }
+.btn-outline { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--sage-dark); padding: 12px 28px; border-radius: 100px; text-decoration: none; font-weight: 600; font-size: 0.95rem; border: 1.5px solid var(--sage-light); transition: var(--transition); }
+.btn-outline:hover { background: var(--sage-pale); border-color: var(--sage); }
+
+/* SECTION COMMONS */
+.section-center { text-align: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.section-center h2 { font-family: 'Noto Serif TC', serif; font-size: clamp(1.6rem,3.5vw,2rem); font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+.section-desc { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 8px; }
+.section-underline { width: 48px; height: 3px; background: var(--sage); border-radius: 2px; margin: 0 auto; }
+
+/* HELPERS CAROUSEL */
+.helpers-section { padding: 80px 0 60px; background: var(--white); }
+.carousel-track { display: flex; gap: 20px; overflow-x: auto; scroll-behavior: smooth; padding: 32px 32px 20px; scrollbar-width: none; }
+.carousel-track::-webkit-scrollbar { display: none; }
+.helper-card { flex: 0 0 280px; background: var(--cream); border-radius: var(--radius); padding: 24px; text-decoration: none; color: inherit; transition: var(--transition); border: 1.5px solid transparent; cursor: pointer; display: block; }
+.helper-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--sage-light); }
+.card-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.card-avatar { width: 48px; height: 48px; background: var(--sage-pale); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+.card-info { display: flex; flex-direction: column; gap: 2px; }
+.card-name { font-weight: 700; font-size: 1.05rem; color: var(--text-primary); }
+.card-badge { display: inline-flex; align-items: center; font-size: 0.72rem; color: var(--sage-dark); background: var(--sage-pale); padding: 2px 10px; border-radius: 100px; font-weight: 600; width: fit-content; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.card-tag { background: var(--white); color: var(--text-secondary); padding: 4px 12px; border-radius: 100px; font-size: 0.76rem; font-weight: 500; border: 1px solid rgba(143,169,139,0.15); }
+.card-location { font-size: 0.82rem; color: var(--text-muted); }
+
+/* 3-STEP SECTION */
+.steps-section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 48px; }
+.step-card { background: var(--white); border-radius: var(--radius-lg); padding: 36px 28px; transition: var(--transition); border: 1px solid rgba(143,169,139,0.08); }
+.step-card:hover { box-shadow: var(--shadow-card); transform: translateY(-2px); }
+.step-num { font-family: 'Noto Serif TC', serif; font-size: 1.5rem; font-weight: 900; color: var(--sage); margin-bottom: 20px; opacity: 0.7; }
+.step-card h3 { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
+.step-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; }
+
+/* WHY LESSEN - DARK */
+.why-section { background: var(--dark-bg); padding: 100px 24px; }
+.why-inner { max-width: 1100px; margin: 0 auto; }
+.why-header { margin-bottom: 48px; }
+.why-header h2 { font-family: 'Noto Serif TC', serif; font-size: clamp(1.6rem,3.5vw,2rem); font-weight: 700; color: var(--white); margin-bottom: 16px; }
+.why-header p { color: rgba(255,255,255,0.55); font-size: 0.95rem; line-height: 1.8; }
+.why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.why-card { background: var(--dark-card); border-radius: var(--radius); padding: 32px 24px; border: 1px solid rgba(143,169,139,0.1); transition: var(--transition); }
+.why-card:hover { border-color: rgba(143,169,139,0.25); transform: translateY(-2px); }
+.why-icon { width: 48px; height: 48px; background: rgba(143,169,139,0.12); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 20px; }
+.why-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+.why-card p { font-size: 0.88rem; color: rgba(255,255,255,0.5); line-height: 1.65; }
+
+/* CTA */
+.cta-section { padding: 100px 24px; background: linear-gradient(180deg, var(--sage-pale) 0%, var(--sage-light) 100%); text-align: center; }
+.cta-inner { max-width: 600px; margin: 0 auto; }
+.cta-inner h2 { font-family: 'Noto Serif TC', serif; font-size: clamp(1.6rem,4vw,2.2rem); font-weight: 900; color: var(--text-primary); margin-bottom: 16px; }
+.cta-inner p { color: var(--text-secondary); font-size: 1rem; margin-bottom: 36px; line-height: 1.7; }
+.cta-actions { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.btn-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--sage-dark); color: var(--white); padding: 16px 36px; border-radius: 100px; text-decoration: none; font-weight: 600; font-size: 1.05rem; transition: var(--transition); box-shadow: 0 4px 20px rgba(92,122,88,0.25); }
+.btn-cta:hover { background: var(--sage-deeper); transform: translateY(-2px); }
+.cta-or { color: var(--text-muted); font-size: 0.9rem; }
+.cta-link { color: var(--sage-dark); text-decoration: underline; text-underline-offset: 3px; font-weight: 500; font-size: 0.95rem; }
+
+/* FOOTER */
+footer { padding: 32px 24px; background: var(--cream); border-top: 1px solid rgba(143,169,139,0.1); }
+.footer-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.footer-brand { display: flex; align-items: center; gap: 8px; }
+.footer-logo-text { font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 0.95rem; color: var(--text-secondary); }
+.footer-copy { font-size: 0.8rem; color: var(--text-muted); }
+
+@media (max-width: 1024px) { .why-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) {
+  .nav-link { display: none; }
+  .hero { padding: 100px 20px 60px; min-height: auto; }
+  .hero h1 { font-size: 2rem; }
+  .helper-card { flex: 0 0 250px; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .why-grid { grid-template-columns: 1fr; }
+  .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="header-logo">
+      <span class="logo-icon">L</span>
+      <span class="logo-text">Lessen</span>
+    </a>
+    <nav class="header-nav">
+      <a href="#" class="nav-link">幫手入口</a>
+      <a href="#" class="nav-cta-btn">立即預約</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">✨ 免費使用 · 皆經審核 · 30 分鐘媒合</div>
+      <h1>新竹地區的<br><em>育兒與家務幫手</em></h1>
+      <p class="hero-subtitle">資歷、評價、專長一目了然。找到最適合你的幫手，直接預約。<br>不用到處問、不怕踩雷。</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary">立即預約 <span>→</span></a>
+        <a href="#" class="btn-ghost">我想成為幫手</a>
+      </div>
+    </div>
+    <div class="hero-glow"></div>
+  </section>
+
+  <section class="helpers-section">
+    <div class="section-center">
+      <h2>好評幫手推薦</h2>
+      <p class="section-desc">他們都是家長好評最多的幫手，口碑值得信賴</p>
+      <div class="section-underline"></div>
+    </div>
+    <div class="carousel-track">
+      <a class="helper-card" href="#">
+        <div class="card-top"><div class="card-avatar">👩‍🏫</div><div class="card-info"><span class="card-name">林佳慧</span><span class="card-badge">人氣幫手</span></div></div>
+        <div class="card-tags"><span class="card-tag">國小數學</span><span class="card-tag">英文</span><span class="card-tag">自然科學</span></div>
+        <div class="card-location">📍 新竹東區</div>
+      </a>
+      <a class="helper-card" href="#">
+        <div class="card-top"><div class="card-avatar">🎮</div><div class="card-info"><span class="card-name">陳雅婷</span><span class="card-badge">好評幫手</span></div></div>
+        <div class="card-tags"><span class="card-tag">特殊需求友善</span><span class="card-tag">創意遊戲</span><span class="card-tag">情緒引導</span></div>
+        <div class="card-location">📍 新竹北區</div>
+      </a>
+      <a class="helper-card" href="#">
+        <div class="card-top"><div class="card-avatar">🏠</div><div class="card-info"><span class="card-name">王淑芬</span><span class="card-badge">新進幫手</span></div></div>
+        <div class="card-tags"><span class="card-tag">接送</span><span class="card-tag">採買</span><span class="card-tag">輕整理</span></div>
+        <div class="card-location">📍 竹北市</div>
+      </a>
+      <a class="helper-card" href="#">
+        <div class="card-top"><div class="card-avatar">🎨</div><div class="card-info"><span class="card-name">張雨萱</span><span class="card-badge">好評幫手</span></div></div>
+        <div class="card-tags"><span class="card-tag">美術創作</span><span class="card-tag">手作</span><span class="card-tag">繪本共讀</span></div>
+        <div class="card-location">📍 新竹市區</div>
+      </a>
+      <a class="helper-card" href="#">
+        <div class="card-top"><div class="card-avatar">📐</div><div class="card-info"><span class="card-name">李宗翰</span><span class="card-badge">人氣幫手</span></div></div>
+        <div class="card-tags"><span class="card-tag">國中數理</span><span class="card-tag">高中物理</span><span class="card-tag">程式入門</span></div>
+        <div class="card-location">📍 新竹東區</div>
+      </a>
+      <a class="helper-card" href="#">
+        <div class="card-top"><div class="card-avatar">🎹</div><div class="card-info"><span class="card-name">蔡宜珊</span><span class="card-badge">好評幫手</span></div></div>
+        <div class="card-tags"><span class="card-tag">鋼琴啟蒙</span><span class="card-tag">音樂律動</span><span class="card-tag">樂理基礎</span></div>
+        <div class="card-location">📍 竹北市</div>
+      </a>
+      <a class="helper-card" href="#">
+        <div class="card-top"><div class="card-avatar">🚗</div><div class="card-info"><span class="card-name">陳美玲</span><span class="card-badge">新進幫手</span></div></div>
+        <div class="card-tags"><span class="card-tag">上下學接送</span><span class="card-tag">課後安親</span><span class="card-tag">週末活動</span></div>
+        <div class="card-location">📍 新竹東區</div>
+      </a>
+      <a class="helper-card" href="#">
+        <div class="card-top"><div class="card-avatar">🧩</div><div class="card-info"><span class="card-name">許心怡</span><span class="card-badge">新進幫手</span></div></div>
+        <div class="card-tags"><span class="card-tag">感統訓練</span><span class="card-tag">社交技巧</span><span class="card-tag">遊戲治療</span></div>
+        <div class="card-location">📍 竹北市</div>
+      </a>
+    </div>
+    <div class="section-center" style="margin-top:40px">
+      <a href="#" class="btn-outline">查看所有幫手 <span>→</span></a>
+    </div>
+  </section>
+
+  <section class="steps-section">
+    <div class="section-center">
+      <h2>簡單三步驟，找到理想幫手</h2>
+      <div class="section-underline"></div>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-num">01</div><h3>告訴我們需求</h3><p>加入 LINE，30 秒填寫孩子年齡、服務類型、偏好時段。</p></div>
+      <div class="step-card"><div class="step-num">02</div><h3>收到推薦人選</h3><p>30 分鐘內為你推薦通過審核的合適幫手，附上完整介紹。</p></div>
+      <div class="step-card"><div class="step-num">03</div><h3>確認預約</h3><p>你覺得 OK 再往下走。不滿意？免費重新媒合，直到滿意。</p></div>
+    </div>
+  </section>
+
+  <section class="why-section">
+    <div class="why-inner">
+      <div class="why-header">
+        <h2>為什麼需要 Lessen？</h2>
+        <p>傳統找家教、找保母，不是靠朋友介紹就是碰運氣。<br>Lessen 為雙方創造一個透明、高效的媒合環境。</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-card"><div class="why-icon">✅</div><h3>皆經審核</h3><p>面試、身份驗證、背景確認，層層把關讓你安心。</p></div>
+        <div class="why-card"><div class="why-icon">⚡</div><h3>快速媒合</h3><p>平均 30 分鐘內收到推薦人選，不用大海撈針。</p></div>
+        <div class="why-card"><div class="why-icon">🔍</div><h3>資歷先看</h3><p>每位幫手都有完整介紹與評價，挑選更放心。</p></div>
+        <div class="why-card"><div class="why-icon">💰</div><h3>免費使用</h3><p>家長完全免費，不收任何平台費或服務費。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2>想讓合適的幫手主動找你？</h2>
+      <p>加 LINE 告訴我們需求只要 30 秒，通過審核的幫手會主動聯繫你。</p>
+      <div class="cta-actions">
+        <a href="#" class="btn-cta">免費預約幫手</a>
+        <span class="cta-or">或是</span>
+        <a href="#" class="cta-link">成為 Lessen 幫手</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="logo-icon logo-icon-sm">L</span>
+      <span class="footer-logo-text">Lessen</span>
+    </div>
+    <p class="footer-copy">© 2025 Lessen. All rights reserved.</p>
+  </div>
+</footer>
+</body>
+</html>
