@@ -1,29 +1,25 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 export default function Home() {
   const [navScrolled, setNavScrolled] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
-  const cardCount = 4;
+  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Nav scroll effect
+  // Scroll detection for nav
   useEffect(() => {
     const handleScroll = () => setNavScrolled(window.scrollY > 40);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Scroll reveal
+  // Scroll reveal animation
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
+          if (entry.isIntersecting) entry.target.classList.add('visible');
         });
       },
       { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
@@ -45,11 +41,8 @@ export default function Home() {
             const step = Math.ceil(count / 40);
             const timer = setInterval(() => {
               current += step;
-              if (current >= count) {
-                current = count;
-                clearInterval(timer);
-              }
-              el.textContent = current + '+';
+              if (current >= count) { current = count; clearInterval(timer); }
+              el.textContent = current + (el.dataset.suffix || '+');
             }, 30);
             observer.unobserve(el);
           }
@@ -61,304 +54,236 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  const scrollToCard = useCallback((index: number) => {
-    const track = carouselRef.current;
-    if (!track) return;
-    const cards = track.querySelectorAll('.helper-card');
-    if (cards[index]) {
-      const card = cards[index] as HTMLElement;
-      track.scrollTo({
-        left: card.offsetLeft - track.offsetLeft - 4,
-        behavior: 'smooth',
-      });
-    }
+  // Infinite carousel autoplay
+  const startAutoplay = useCallback(() => {
+    if (autoplayRef.current) clearInterval(autoplayRef.current);
+    autoplayRef.current = setInterval(() => {
+      const el = carouselRef.current;
+      if (!el) return;
+      const cardWidth = 300 + 20; // card width + gap
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (el.scrollLeft >= maxScroll - 10) {
+        el.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        el.scrollBy({ left: cardWidth, behavior: 'smooth' });
+      }
+    }, 3500);
   }, []);
 
-  const startAutoPlay = useCallback(() => {
-    if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    autoPlayRef.current = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const next = (prev + 1) % cardCount;
-        scrollToCard(next);
-        return next;
-      });
-    }, 4500);
-  }, [scrollToCard]);
-
-  // Carousel auto-play
   useEffect(() => {
-    startAutoPlay();
-    return () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    };
-  }, [startAutoPlay]);
+    startAutoplay();
+    return () => { if (autoplayRef.current) clearInterval(autoplayRef.current); };
+  }, [startAutoplay]);
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
-        setCurrentIndex((prev) => {
-          const next = Math.max(0, prev - 1);
-          scrollToCard(next);
-          return next;
-        });
-        startAutoPlay();
-      }
-      if (e.key === 'ArrowRight') {
-        setCurrentIndex((prev) => {
-          const next = Math.min(prev + 1, cardCount - 1);
-          scrollToCard(next);
-          return next;
-        });
-        startAutoPlay();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [scrollToCard, startAutoPlay]);
-
-  // Scroll-based dot sync
-  useEffect(() => {
-    const track = carouselRef.current;
-    if (!track) return;
-    let scrollTimeout: NodeJS.Timeout;
-    const handleScroll = () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        const scrollLeft = track.scrollLeft;
-        const cards = track.querySelectorAll('.helper-card');
-        let closest = 0;
-        let minDist = Infinity;
-        cards.forEach((card, i) => {
-          const el = card as HTMLElement;
-          const dist = Math.abs(el.offsetLeft - track.offsetLeft - scrollLeft);
-          if (dist < minDist) { minDist = dist; closest = i; }
-        });
-        setCurrentIndex(closest);
-      }, 80);
-    };
-    track.addEventListener('scroll', handleScroll);
-    return () => track.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  function goToSlide(index: number) {
-    const clamped = Math.max(0, Math.min(index, cardCount - 1));
-    setCurrentIndex(clamped);
-    scrollToCard(clamped);
-    startAutoPlay();
-  }
+  const pauseAutoplay = () => {
+    if (autoplayRef.current) clearInterval(autoplayRef.current);
+  };
 
   const helpers = [
     {
-      emoji: '👩‍🏫',
-      name: '林佳慧',
-      location: '新竹東區',
-      bio: '師大畢業、五年教學經驗。最擅長把數學變成遊戲，讓孩子笑著笑著就學會了。她說：「每個孩子都有自己的節奏，我只是陪他走。」',
+      emoji: '👩‍🏫', name: '林佳慧', location: '新竹東區', badge: '人氣幫手',
       tags: ['國小數學', '英文', '自然科學'],
-      rating: '4.9',
-      price: 'NT$400/hr',
+      bio: '師大畢業、五年教學經驗。最擅長把數學變成遊戲，讓孩子笑著笑著就學會了。',
+      rating: '4.9', price: 'NT$400/hr',
     },
     {
-      emoji: '🎮',
-      name: '陳雅婷',
-      location: '新竹北區',
-      bio: '特教系出身，曾陪伴亞斯伯格症的孩子三年。溫柔又有耐心，總能用創意遊戲打開孩子的心。她相信：「每個孩子都有自己認識世界的方式。」',
+      emoji: '🎮', name: '陳雅婷', location: '新竹北區', badge: '好評幫手',
       tags: ['特殊需求友善', '創意遊戲', '情緒引導'],
-      rating: '5.0',
-      price: 'NT$350/hr',
+      bio: '特教系出身，曾陪伴亞斯伯格症的孩子三年。溫柔又有耐心，總能用創意遊戲打開孩子的心。',
+      rating: '5.0', price: 'NT$350/hr',
     },
     {
-      emoji: '🏠',
-      name: '王淑芬',
-      location: '竹北市',
-      bio: '三年管家經驗，從接送到採買都能安心託付。做事細心、個性隨和，很多家庭都把她當自家人。她常說：「幫忙不是工作，是一起生活。」',
+      emoji: '🏠', name: '王淑芬', location: '竹北市', badge: '新進幫手',
       tags: ['接送', '採買', '輕整理'],
-      rating: '4.8',
-      price: 'NT$300/hr',
+      bio: '三年管家經驗，從接送到採買都能安心託付。做事細心、個性隨和，很多家庭都把她當自家人。',
+      rating: '4.8', price: 'NT$300/hr',
     },
     {
-      emoji: '🎨',
-      name: '張雨萱',
-      location: '新竹市區',
-      bio: '美術系畢業，帶過幼兒園美術課兩年。用畫筆和故事帶孩子探索世界，連最坐不住的小朋友都能專注一整個下午。',
+      emoji: '🎨', name: '張雨萱', location: '新竹市區', badge: '好評幫手',
       tags: ['美術創作', '手作', '繪本共讀'],
-      rating: '4.9',
-      price: 'NT$380/hr',
+      bio: '美術系畢業，帶過幼兒園美術課兩年。用畫筆和故事帶孩子探索世界。',
+      rating: '4.9', price: 'NT$380/hr',
     },
+    {
+      emoji: '📐', name: '李宗翰', location: '新竹東區', badge: '人氣幫手',
+      tags: ['國中數理', '高中物理', '程式入門'],
+      bio: '清大理工背景，擅長用生活實例解釋抽象概念。帶過超過 30 位國中生，段考平均進步 15 分。',
+      rating: '4.9', price: 'NT$500/hr',
+    },
+    {
+      emoji: '🎹', name: '蔡宜珊', location: '竹北市', badge: '好評幫手',
+      tags: ['鋼琴啟蒙', '音樂律動', '樂理基礎'],
+      bio: '音樂系畢業，鋼琴教學四年。用遊戲化方式讓孩子愛上練琴，不再把學音樂當苦差事。',
+      rating: '5.0', price: 'NT$450/hr',
+    },
+    {
+      emoji: '🚗', name: '陳美玲', location: '新竹東區', badge: '新進幫手',
+      tags: ['上下學接送', '課後安親', '週末活動'],
+      bio: '兩個孩子的媽，最懂家長需要什麼。細心負責，時間觀念極佳，接送從不遲到。',
+      rating: '4.7', price: 'NT$280/hr',
+    },
+    {
+      emoji: '🧩', name: '許心怡', location: '竹北市', badge: '新進幫手',
+      tags: ['感統訓練', '社交技巧', '遊戲治療'],
+      bio: '職能治療師背景，專精兒童感覺統合訓練。善於觀察孩子需求，用遊戲引導成長。',
+      rating: '4.9', price: 'NT$420/hr',
+    },
+  ];
+
+  const steps = [
+    { num: '01', title: '告訴我們需求', desc: '加入 LINE，30 秒填寫孩子年齡、服務類型、偏好時段。' },
+    { num: '02', title: '收到推薦人選', desc: '30 分鐘內為你推薦通過審核的合適幫手，附上完整介紹。' },
+    { num: '03', title: '確認預約', desc: '你覺得 OK 再往下走。不滿意？免費重新媒合，直到滿意。' },
+  ];
+
+  const whyReasons = [
+    { icon: '✅', title: '皆經審核', desc: '面試、身份驗證、背景確認，層層把關讓你安心。' },
+    { icon: '⚡', title: '快速媒合', desc: '平均 30 分鐘內收到推薦人選，不用大海撈針。' },
+    { icon: '🔍', title: '資歷先看', desc: '每位幫手都有完整介紹與評價，挑選更放心。' },
+    { icon: '💰', title: '免費使用', desc: '家長完全免費，不收任何平台費或服務費。' },
   ];
 
   return (
     <>
       {/* NAV */}
-      <nav className={navScrolled ? 'scrolled' : ''}>
-        <div className="nav-inner">
-          <div className="nav-logo">Lessen</div>
-          <div className="nav-links">
-            <a href="#helpers">家教</a>
-            <a href="#helpers">陪玩姊姊</a>
-            <a href="#helpers">管家</a>
-            <a href="#how">服務流程</a>
-            <a href="#cta" className="nav-cta">立即預約</a>
-          </div>
+      <header className={`site-header ${navScrolled ? 'scrolled' : ''}`}>
+        <div className="header-inner">
+          <a href="/" className="header-logo">
+            <span className="logo-icon">L</span>
+            <span className="logo-text">Lessen</span>
+          </a>
+          <nav className="header-nav">
+            <a href="#cta-helper" className="nav-link">幫手入口</a>
+            <a href="#cta" className="nav-cta-btn">立即預約</a>
+          </nav>
         </div>
-      </nav>
+      </header>
 
-      {/* TICKER */}
-      <div className="ticker">
-        <span className="ticker-dot" />
-        <span className="ticker-text">🎉 剛剛有一位新竹東區的媽媽成功找到家教老師</span>
-      </div>
+      <main>
+        {/* HERO */}
+        <section className="hero">
+          <div className="hero-content">
+            <div className="hero-badge reveal">
+              ✨ 免費使用 · 皆經審核 · 30 分鐘媒合
+            </div>
+            <h1 className="reveal reveal-delay-1">
+              新竹地區的<br />
+              <em>育兒與家務幫手</em>
+            </h1>
+            <p className="hero-subtitle reveal reveal-delay-2">
+              資歷、評價、專長一目了然。找到最適合你的幫手，直接預約。<br />
+              不用到處問、不怕踩雷。
+            </p>
+            <div className="hero-actions reveal reveal-delay-3">
+              <a href="#cta" className="btn-primary">立即預約 <span className="btn-arrow">→</span></a>
+              <a href="#cta-helper" className="btn-ghost">我想成為幫手</a>
+            </div>
+          </div>
+          <div className="hero-glow" />
+        </section>
 
-      {/* HERO */}
-      <section className="hero">
-        <div className="hero-content">
-          <div className="hero-badge reveal">
-            <span className="dot" />
-            📍 從新竹出發，持續擴展中
+        {/* HELPERS CAROUSEL */}
+        <section className="helpers-section" id="helpers">
+          <div className="section-center">
+            <h2 className="reveal">好評幫手推薦</h2>
+            <p className="section-desc reveal reveal-delay-1">
+              他們都是家長好評最多的幫手，口碑值得信賴
+            </p>
+            <div className="section-underline reveal reveal-delay-1" />
           </div>
-          <h1 className="reveal reveal-delay-1">
-            你已經<em>夠努力了</em>
-            <br />
-            剩下的，交給我們
-          </h1>
-          <p className="hero-subtitle reveal reveal-delay-2">
-            育兒不必事事親力親為。Lessen 為你媒合通過審核的家教、陪玩姊姊與管家，
-            <br />
-            讓你安心喘口氣，把時間還給自己。
-          </p>
-          <div className="hero-actions reveal reveal-delay-3">
-            <a href="#cta" className="btn-primary">預約幫手 →</a>
-            <a href="#how" className="btn-secondary">了解服務流程</a>
-          </div>
-        </div>
-      </section>
 
-      {/* STATS */}
-      <div className="stats">
-        <div className="stat-item reveal">
-          <div className="stat-number" data-count="50">0+</div>
-          <div className="stat-label">在地幫手</div>
-        </div>
-        <div className="stat-item reveal reveal-delay-1">
-          <div className="stat-number">98%</div>
-          <div className="stat-label">家長好評率</div>
-        </div>
-        <div className="stat-item reveal reveal-delay-2">
-          <div className="stat-number">
-            30<span style={{ fontSize: '1.2rem' }}>min</span>
-          </div>
-          <div className="stat-label">平均媒合時間</div>
-        </div>
-      </div>
-
-      {/* HELPERS CAROUSEL */}
-      <section className="helpers-section" id="helpers">
-        <div className="section-header reveal">
-          <div>
-            <h2>認識我們的幫手</h2>
-            <p>每一位都經過面試審核，真心喜歡孩子</p>
-          </div>
-          <a href="#" className="view-all">查看全部 →</a>
-        </div>
-        <div className="carousel-wrapper">
           <div
             className="carousel-track"
             ref={carouselRef}
-            onMouseEnter={() => { if (autoPlayRef.current) clearInterval(autoPlayRef.current); }}
-            onMouseLeave={() => startAutoPlay()}
+            onMouseEnter={pauseAutoplay}
+            onMouseLeave={startAutoplay}
           >
-            {helpers.map((helper, i) => (
-              <div
-                key={i}
-                className={`helper-card reveal ${i > 0 ? `reveal-delay-${i}` : ''}`}
-              >
-                <div className="card-emoji">{helper.emoji}</div>
-                <div className="card-header">
-                  <span className="card-name">{helper.name}</span>
-                  <span className="card-verified">✓ 已審核</span>
+            {[...helpers, ...helpers].map((helper, i) => (
+              <a key={i} className="helper-card" href="#cta">
+                <div className="card-top">
+                  <div className="card-avatar">{helper.emoji}</div>
+                  <div className="card-info">
+                    <span className="card-name">{helper.name}</span>
+                    <span className="card-badge">{helper.badge}</span>
+                  </div>
                 </div>
-                <div className="card-location">📍 {helper.location}</div>
-                <div className="card-bio">{helper.bio}</div>
                 <div className="card-tags">
                   {helper.tags.map((tag) => (
                     <span key={tag} className="card-tag">{tag}</span>
                   ))}
                 </div>
-                <div className="card-footer">
-                  <span className="card-rating">⭐ {helper.rating}</span>
-                  <span className="card-price">{helper.price}</span>
-                </div>
-                <a href="#" className="card-action">查看詳情</a>
+                <div className="card-location">📍 {helper.location}</div>
+              </a>
+            ))}
+          </div>
+
+          <div className="section-center" style={{ marginTop: '40px' }}>
+            <a href="#helpers" className="btn-outline reveal">查看所有幫手 <span className="btn-arrow">→</span></a>
+          </div>
+        </section>
+
+        {/* HOW IT WORKS - 3 STEPS */}
+        <section className="steps-section" id="how">
+          <div className="section-center">
+            <h2 className="reveal">簡單三步驟，找到理想幫手</h2>
+            <div className="section-underline reveal reveal-delay-1" />
+          </div>
+          <div className="steps-grid">
+            {steps.map((step, i) => (
+              <div key={i} className={`step-card reveal ${i > 0 ? `reveal-delay-${i}` : ''}`}>
+                <div className="step-num">{step.num}</div>
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
               </div>
             ))}
           </div>
-          <div className="carousel-controls">
-            <button className="carousel-btn" onClick={() => goToSlide(currentIndex - 1)} aria-label="上一位">←</button>
-            <div className="carousel-dots">
-              {helpers.map((_, i) => (
-                <button
-                  key={i}
-                  className={`carousel-dot ${i === currentIndex ? 'active' : ''}`}
-                  onClick={() => goToSlide(i)}
-                  aria-label={`幫手 ${i + 1}`}
-                />
+        </section>
+
+        {/* WHY LESSEN - DARK SECTION */}
+        <section className="why-section" id="why">
+          <div className="why-inner">
+            <div className="why-header">
+              <h2 className="reveal">為什麼需要 Lessen？</h2>
+              <p className="reveal reveal-delay-1">
+                傳統找家教、找保母，不是靠朋友介紹就是碰運氣。<br />
+                Lessen 為雙方創造一個透明、高效的媒合環境。
+              </p>
+            </div>
+            <div className="why-grid">
+              {whyReasons.map((r, i) => (
+                <div key={i} className={`why-card reveal ${i > 0 ? `reveal-delay-${i}` : ''}`}>
+                  <div className="why-icon">{r.icon}</div>
+                  <h3>{r.title}</h3>
+                  <p>{r.desc}</p>
+                </div>
               ))}
             </div>
-            <button className="carousel-btn" onClick={() => goToSlide(currentIndex + 1)} aria-label="下一位">→</button>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* HOW IT WORKS */}
-      <section className="how-section" id="how">
-        <h2 className="reveal">三步驟，輕鬆找到好幫手</h2>
-        <div className="how-steps">
-          <div className="how-step reveal">
-            <div className="step-number">1</div>
-            <h3>加入 LINE 告訴我們需求</h3>
-            <p>孩子年齡、需要的服務類型、偏好時段——簡單說就好，我們來幫你安排。</p>
+        {/* FINAL CTA */}
+        <section className="cta-section" id="cta">
+          <div className="cta-inner reveal">
+            <h2>想讓合適的幫手主動找你？</h2>
+            <p>加 LINE 告訴我們需求只要 30 秒，通過審核的幫手會主動聯繫你。</p>
+            <div className="cta-actions">
+              <a href="#" className="btn-cta">免費預約幫手</a>
+              <span className="cta-or">或是</span>
+              <a href="#" className="cta-link" id="cta-helper">成為 Lessen 幫手</a>
+            </div>
           </div>
-          <div className="how-step reveal reveal-delay-1">
-            <div className="step-number">2</div>
-            <h3>收到推薦幫手</h3>
-            <p>30 分鐘內為你推薦合適人選，附上完整介紹，你覺得 OK 再往下走。</p>
-          </div>
-          <div className="how-step reveal reveal-delay-2">
-            <div className="step-number">3</div>
-            <h3>安心開始服務</h3>
-            <p>確認後直接安排第一次服務。不滿意？隨時跟我們說，免費重新媒合。</p>
-          </div>
-        </div>
-      </section>
-
-      {/* TRUST */}
-      <section className="trust-section">
-        <div className="trust-inner reveal from-scale">
-          <div style={{ fontSize: '2.5rem', marginBottom: '20px' }}>🌿</div>
-          <p className="trust-quote">
-            「自從用了 Lessen，每週三下午我終於可以好好去上一堂瑜伽課。小孩跟佳慧老師玩得比跟我還開心，我也不再覺得喘不過氣了。」
-          </p>
-          <p className="trust-author">—— 新竹東區 · 兩個孩子的媽媽</p>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="cta-section" id="cta">
-        <h2 className="reveal">今天就讓自己<em>輕一點</em></h2>
-        <p className="cta-subtitle reveal reveal-delay-1">加入 LINE 官方帳號，三分鐘完成預約。</p>
-        <div className="cta-actions reveal reveal-delay-2">
-          <a href="#" className="btn-primary">加入 LINE 立即預約</a>
-          <a href="#" className="btn-secondary">成為幫手</a>
-        </div>
-      </section>
+        </section>
+      </main>
 
       {/* FOOTER */}
       <footer>
-        <div className="footer-logo">Lessen</div>
-        <p className="footer-disclaimer">
-          Lessen 為媒合平台，僅提供家長與服務提供者之間的媒合服務，不對服務提供者的行為、服務品質或任何因使用本平台所產生的損失負責。所有服務提供者均為獨立個人，非本平台員工。家長在預約前請自行評估並了解服務內容。使用本平台即代表您同意本平台之服務條款與免責聲明。
-        </p>
-        <p className="footer-copy">© 2026 Lessen · 從新竹出發</p>
+        <div className="footer-inner">
+          <div className="footer-brand">
+            <span className="logo-icon logo-icon-sm">L</span>
+            <span className="footer-logo-text">Lessen</span>
+          </div>
+          <p className="footer-copy">© 2025 Lessen. All rights reserved.</p>
+        </div>
       </footer>
     </>
   );
