@@ -81,49 +81,49 @@ export default function Home() {
 
   const helpers = [
     {
-      emoji: '👩‍🏫', name: '林佳慧', location: '新竹東區', badge: '人氣幫手',
+      emoji: '👩‍🏫', name: '林佳慧', location: '台北市', badge: '人氣幫手',
       tags: ['國小數學', '英文', '自然科學'],
       bio: '師大畢業、五年教學經驗。最擅長把數學變成遊戲，讓孩子笑著笑著就學會了。',
       rating: '4.9', price: 'NT$400/hr',
     },
     {
-      emoji: '🎮', name: '陳雅婷', location: '新竹北區', badge: '好評幫手',
+      emoji: '🎮', name: '陳雅婷', location: '新北市', badge: '好評幫手',
       tags: ['特殊需求友善', '創意遊戲', '情緒引導'],
       bio: '特教系出身，曾陪伴亞斯伯格症的孩子三年。溫柔又有耐心，總能用創意遊戲打開孩子的心。',
       rating: '5.0', price: 'NT$350/hr',
     },
     {
-      emoji: '🏠', name: '王淑芬', location: '竹北市', badge: '新進幫手',
+      emoji: '🏠', name: '王淑芬', location: '桃園市', badge: '新進幫手',
       tags: ['接送', '採買', '輕整理'],
       bio: '三年管家經驗，從接送到採買都能安心託付。做事細心、個性隨和，很多家庭都把她當自家人。',
       rating: '4.8', price: 'NT$300/hr',
     },
     {
-      emoji: '🎨', name: '張雨萱', location: '新竹市區', badge: '好評幫手',
+      emoji: '🎨', name: '張雨萱', location: '台中市', badge: '好評幫手',
       tags: ['美術創作', '手作', '繪本共讀'],
       bio: '美術系畢業，帶過幼兒園美術課兩年。用畫筆和故事帶孩子探索世界。',
       rating: '4.9', price: 'NT$380/hr',
     },
     {
-      emoji: '📐', name: '李宗翰', location: '新竹東區', badge: '人氣幫手',
+      emoji: '📐', name: '李宗翰', location: '新竹市', badge: '人氣幫手',
       tags: ['國中數理', '高中物理', '程式入門'],
       bio: '清大理工背景，擅長用生活實例解釋抽象概念。帶過超過 30 位國中生，段考平均進步 15 分。',
       rating: '4.9', price: 'NT$500/hr',
     },
     {
-      emoji: '🎹', name: '蔡宜珊', location: '竹北市', badge: '好評幫手',
+      emoji: '🎹', name: '蔡宜珊', location: '高雄市', badge: '好評幫手',
       tags: ['鋼琴啟蒙', '音樂律動', '樂理基礎'],
       bio: '音樂系畢業，鋼琴教學四年。用遊戲化方式讓孩子愛上練琴，不再把學音樂當苦差事。',
       rating: '5.0', price: 'NT$450/hr',
     },
     {
-      emoji: '🚗', name: '陳美玲', location: '新竹東區', badge: '新進幫手',
+      emoji: '🚗', name: '陳美玲', location: '台南市', badge: '新進幫手',
       tags: ['上下學接送', '課後安親', '週末活動'],
       bio: '兩個孩子的媽，最懂家長需要什麼。細心負責，時間觀念極佳，接送從不遲到。',
       rating: '4.7', price: 'NT$280/hr',
     },
     {
-      emoji: '🧩', name: '許心怡', location: '竹北市', badge: '新進幫手',
+      emoji: '🧩', name: '許心怡', location: '新北市', badge: '新進幫手',
       tags: ['感統訓練', '社交技巧', '遊戲治療'],
       bio: '職能治療師背景，專精兒童感覺統合訓練。善於觀察孩子需求，用遊戲引導成長。',
       rating: '4.9', price: 'NT$420/hr',
@@ -168,7 +168,7 @@ export default function Home() {
               ✨ 免費使用 · 開放註冊 · 30 分鐘媒合
             </div>
             <h1 className="reveal reveal-delay-1">
-              新竹地區的<br />
+              你附近的<br />
               <em>育兒與家務幫手</em>
             </h1>
             <p className="hero-subtitle reveal reveal-delay-2">
@@ -281,15 +281,4 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer>
-        <div className="footer-inner">
-          <div className="footer-brand">
-            <span className="logo-icon logo-icon-sm">L</span>
-            <span className="footer-logo-text">Lessen</span>
-          </div>
-          <p className="footer-disclaimer">Lessen 為媒合平台，僅協助家長與服務提供者建立聯繫，不對服務內容、品質或任何因使用本平台所產生的損失負責。所有服務提供者均為獨立個人，非本平台員工。使用本平台即代表您同意以上條款。</p>
-          <p className="footer-copy">© 2025 Lessen. All rights reserved.</p>
-        </div>
-      </footer>
-    </>
-  );
-}
+        <div className
