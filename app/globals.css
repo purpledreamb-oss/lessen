@@ -510,29 +510,34 @@ body {
   text-align: center;
 }
 
-/* ===== CTA SECTION ===== */
-.cta-section {
+/* ===== NOTICE SECTION ===== */
+.notice-section {
   padding: 100px 24px;
   background: linear-gradient(180deg, var(--sage-pale) 0%, var(--sage-light) 100%);
   text-align: center;
 }
-.cta-inner {
+.notice-inner {
   max-width: 600px;
   margin: 0 auto;
 }
-.cta-inner h2 {
+.notice-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+.notice-inner h2 {
   font-family: 'Noto Serif TC', serif;
   font-size: clamp(1.6rem, 4vw, 2.2rem);
   font-weight: 900;
   color: var(--text-primary);
   margin-bottom: 16px;
 }
-.cta-inner p {
+.notice-inner p {
   color: var(--text-secondary);
   font-size: 1rem;
-  margin-bottom: 36px;
-  line-height: 1.7;
+  line-height: 1.8;
 }
+
+/* ===== CTA SECTION (reserved) ===== */
 .cta-actions {
   display: flex;
   align-items: center;

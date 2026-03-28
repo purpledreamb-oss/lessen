@@ -265,16 +265,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* FINAL CTA */}
-        <section className="cta-section" id="cta">
-          <div className="cta-inner reveal">
-            <h2>想讓合適的幫手主動找你？</h2>
-            <p>加 LINE 告訴我們需求只要 30 秒，媒合後直接加 LINE 聯繫。</p>
-            <div className="cta-actions">
-              <a href="#" className="btn-cta">免費預約幫手</a>
-              <span className="cta-or">或是</span>
-              <a href="#" className="cta-link" id="cta-helper">成為 Lessen 幫手</a>
-            </div>
+        {/* NOTICE */}
+        <section className="notice-section" id="cta">
+          <div className="notice-inner reveal">
+            <div className="notice-icon">🚧</div>
+            <h2>服務尚未開放</h2>
+            <p>本平台仍在建置測試中，感謝您的耐心等候。<br />我們正在努力準備，敬請期待正式上線！</p>
           </div>
         </section>
       </main>
