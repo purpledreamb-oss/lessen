@@ -494,6 +494,22 @@ body {
   line-height: 1.65;
 }
 
+/* Platform Notice */
+.platform-notice {
+  max-width: 1200px;
+  margin: 32px auto 0;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(143, 169, 139, 0.1);
+}
+.platform-notice p {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.7;
+  text-align: center;
+}
+
 /* ===== CTA SECTION ===== */
 .cta-section {
   padding: 100px 24px;
@@ -583,9 +599,18 @@ footer {
   font-size: 0.95rem;
   color: var(--text-secondary);
 }
+.footer-disclaimer {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 12px auto 0;
+  line-height: 1.7;
+  opacity: 0.8;
+}
 .footer-copy {
   font-size: 0.8rem;
   color: var(--text-muted);
+  margin-top: 12px;
 }
 
 /* ===== AUTH PAGES ===== */

@@ -132,14 +132,14 @@ export default function Home() {
 
   const steps = [
     { num: '01', title: '告訴我們需求', desc: '加入 LINE，30 秒填寫孩子年齡、服務類型、偏好時段。' },
-    { num: '02', title: '收到推薦人選', desc: '30 分鐘內為你推薦通過審核的合適幫手，附上完整介紹。' },
-    { num: '03', title: '確認預約', desc: '你覺得 OK 再往下走。不滿意？免費重新媒合，直到滿意。' },
+    { num: '02', title: '收到推薦人選', desc: '30 分鐘內推薦合適幫手，核對證件後提供完整介紹。' },
+    { num: '03', title: '加 LINE 直接聯繫', desc: '媒合成功後雙方直接加 LINE，試做幾次再決定是否長期合作。' },
   ];
 
   const whyReasons = [
-    { icon: '✅', title: '皆經審核', desc: '面試、身份驗證、背景確認，層層把關讓你安心。' },
-    { icon: '⚡', title: '快速媒合', desc: '平均 30 分鐘內收到推薦人選，不用大海撈針。' },
-    { icon: '🔍', title: '資歷先看', desc: '每位幫手都有完整介紹與評價，挑選更放心。' },
+    { icon: '🪪', title: '核對證件', desc: '媒合前我們會協助雙方確認身份，提供基本保障。' },
+    { icon: '🤝', title: '試做幾次再決定', desc: '不確定合不合適？先試做幾次，滿意再長期合作。' },
+    { icon: '💬', title: '直接加 LINE 聯繫', desc: '媒合成功後，雙方直接加 LINE 溝通，彈性又方便。' },
     { icon: '💰', title: '免費使用', desc: '家長完全免費，不收任何平台費或服務費。' },
   ];
 
@@ -165,7 +165,7 @@ export default function Home() {
         <section className="hero">
           <div className="hero-content">
             <div className="hero-badge reveal">
-              ✨ 免費使用 · 皆經審核 · 30 分鐘媒合
+              ✨ 免費使用 · 開放註冊 · 30 分鐘媒合
             </div>
             <h1 className="reveal reveal-delay-1">
               新竹地區的<br />
@@ -250,6 +250,9 @@ export default function Home() {
                 Lessen 為雙方創造一個透明、高效的媒合環境。
               </p>
             </div>
+            <div className="platform-notice reveal reveal-delay-2">
+              <p>Lessen 為媒合平台，協助家長與幫手建立聯繫。服務內容、品質及雙方權益由使用者自行約定，平台不介入服務過程，亦不對服務結果負責。</p>
+            </div>
             <div className="why-grid">
               {whyReasons.map((r, i) => (
                 <div key={i} className={`why-card reveal ${i > 0 ? `reveal-delay-${i}` : ''}`}>
@@ -266,7 +269,7 @@ export default function Home() {
         <section className="cta-section" id="cta">
           <div className="cta-inner reveal">
             <h2>想讓合適的幫手主動找你？</h2>
-            <p>加 LINE 告訴我們需求只要 30 秒，通過審核的幫手會主動聯繫你。</p>
+            <p>加 LINE 告訴我們需求只要 30 秒，媒合後直接加 LINE 聯繫。</p>
             <div className="cta-actions">
               <a href="#" className="btn-cta">免費預約幫手</a>
               <span className="cta-or">或是</span>
@@ -283,6 +286,7 @@ export default function Home() {
             <span className="logo-icon logo-icon-sm">L</span>
             <span className="footer-logo-text">Lessen</span>
           </div>
+          <p className="footer-disclaimer">Lessen 為媒合平台，僅協助家長與服務提供者建立聯繫，不對服務內容、品質或任何因使用本平台所產生的損失負責。所有服務提供者均為獨立個人，非本平台員工。使用本平台即代表您同意以上條款。</p>
           <p className="footer-copy">© 2025 Lessen. All rights reserved.</p>
         </div>
       </footer>
