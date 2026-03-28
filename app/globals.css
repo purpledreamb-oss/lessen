@@ -510,31 +510,27 @@ body {
   text-align: center;
 }
 
-/* ===== NOTICE SECTION ===== */
-.notice-section {
-  padding: 100px 24px;
-  background: linear-gradient(180deg, var(--sage-pale) 0%, var(--sage-light) 100%);
+/* ===== NOTICE TOP BANNER ===== */
+.notice-top {
+  margin-top: 64px;
+  padding: 14px 24px;
+  background: #FFF3CD;
+  border-bottom: 1px solid #FFE69C;
   text-align: center;
 }
-.notice-inner {
-  max-width: 600px;
+.notice-top .notice-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 1200px;
   margin: 0 auto;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #664D03;
 }
-.notice-icon {
-  font-size: 3rem;
-  margin-bottom: 20px;
-}
-.notice-inner h2 {
-  font-family: 'Noto Serif TC', serif;
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
-  font-weight: 900;
-  color: var(--text-primary);
-  margin-bottom: 16px;
-}
-.notice-inner p {
-  color: var(--text-secondary);
-  font-size: 1rem;
-  line-height: 1.8;
+.notice-top .notice-icon {
+  font-size: 1.1rem;
 }
 
 /* ===== CTA SECTION (reserved) ===== */

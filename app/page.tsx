@@ -161,6 +161,14 @@ export default function Home() {
       </header>
 
       <main>
+        {/* NOTICE */}
+        <section className="notice-section notice-top">
+          <div className="notice-inner">
+            <span className="notice-icon">🚧</span>
+            <span>服務尚未開放 — 本平台仍在建置測試中，感謝您的耐心等候。</span>
+          </div>
+        </section>
+
         {/* HERO */}
         <section className="hero">
           <div className="hero-content">
@@ -265,14 +273,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* NOTICE */}
-        <section className="notice-section" id="cta">
-          <div className="notice-inner reveal">
-            <div className="notice-icon">🚧</div>
-            <h2>服務尚未開放</h2>
-            <p>本平台仍在建置測試中，感謝您的耐心等候。<br />我們正在努力準備，敬請期待正式上線！</p>
-          </div>
-        </section>
       </main>
 
       {/* FOOTER */}
