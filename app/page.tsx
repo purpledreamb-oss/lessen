@@ -92,7 +92,7 @@ export default function Home() {
         <div className="header-inner">
           <a href="/" className="header-logo">
             <span className="logo-icon">L</span>
-            <span className="logo-text">Lessen</span>
+            <span className="logo-text">Lessen <span style={{ fontSize: '0.6em', color: 'var(--text-secondary)', fontWeight: 400 }}>輕一點</span></span>
           </a>
           <nav className="header-nav">
             <a href="/browse" className="nav-link">瀏覽幫手</a>
