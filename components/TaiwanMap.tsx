@@ -15,7 +15,7 @@ export default function TaiwanMap({ selectedCity, helperCounts, onCitySelect }: 
   return (
     <div className="taiwan-map-container">
       <svg
-        viewBox="0 400 600"
+        viewBox="0 0 400 600"
         xmlns="http://www.w3.org/2000/svg"
         className="taiwan-map-svg"
         role="img"
