@@ -2,35 +2,60 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import type { UserRole } from '@/lib/supabase/types';
+import { validatePassword, validateEmail, validatePhone, sanitizeInput } from '@/lib/validation';
+import { rateLimit } from '@/lib/rate-limit';
 
 export type AuthState = {
   error?: string;
   success?: boolean;
 } | undefined;
 
+function getClientIp(headersList: Headers): string {
+  return headersList.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || headersList.get('x-real-ip')
+    || 'unknown';
+}
+
 // ===== SIGN UP =====
 export async function signup(
   _prevState: AuthState,
   formData: FormData
 ): Promise<AuthState> {
+  const headersList = await headers();
+  const ip = getClientIp(headersList);
+
+  // Rate limit: 5 signups per IP per hour
+  const limit = rateLimit(`signup:${ip}`, { maxAttempts: 5, windowMs: 3600_000 });
+  if (!limit.success) {
+    return { error: '註冊嘗試次數過多，請稍後再試' };
+  }
+
   const supabase = await createClient();
 
-  const email = formData.get('email') as string;
+  const email = sanitizeInput(formData.get('email') as string, 254);
   const password = formData.get('password') as string;
   const confirmPassword = formData.get('confirmPassword') as string;
-  const fullName = formData.get('fullName') as string;
-  const phone = formData.get('phone') as string;
+  const fullName = sanitizeInput(formData.get('fullName') as string, 50);
+  const phone = sanitizeInput(formData.get('phone') as string, 15);
   const role = formData.get('role') as UserRole;
-  const city = formData.get('city') as string;
-  const district = formData.get('district') as string;
+  const city = sanitizeInput(formData.get('city') as string, 10);
+  const district = sanitizeInput((formData.get('district') as string) || '', 20);
 
   // Validation
   if (!email || !password || !fullName || !phone || !role || !city) {
     return { error: '請填寫所有必填欄位' };
   }
-  if (password.length < 6) {
-    return { error: '密碼至少需要 6 個字元' };
+  if (!validateEmail(email)) {
+    return { error: '請輸入有效的 Email 地址' };
+  }
+  if (!validatePhone(phone)) {
+    return { error: '請輸入有效的手機號碼（09xx-xxx-xxx）' };
+  }
+  const pwResult = validatePassword(password);
+  if (!pwResult.valid) {
+    return { error: pwResult.message };
   }
   if (password !== confirmPassword) {
     return { error: '兩次密碼輸入不一致' };
@@ -42,6 +67,7 @@ export async function signup(
     password,
     options: {
       data: { full_name: fullName, role },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
     },
   });
 
@@ -113,7 +139,7 @@ export async function signup(
       children_ages: childrenAges.length > 0 ? childrenAges : [],
       needs: needs.length > 0 ? needs : [],
       preferred_time: preferredTime || null,
-      notes: notes || null,
+      notes: notes ? sanitizeInput(notes) : null,
     });
 
     if (parentError) {
@@ -121,7 +147,7 @@ export async function signup(
     }
   }
 
-  redirect('/dashboard');
+  redirect('/verify-email');
 }
 
 // ===== SIGN IN =====
@@ -129,15 +155,21 @@ export async function signin(
   _prevState: AuthState,
   formData: FormData
 ): Promise<AuthState> {
-  const supabase = await createClient();
-
-  const email = formData.get('email') as string;
+  const headersList = await headers();
+  const email = sanitizeInput(formData.get('email') as string, 254);
   const password = formData.get('password') as string;
 
   if (!email || !password) {
     return { error: '請輸入 Email 和密碼' };
   }
 
+  // Rate limit: 10 attempts per email per 15 minutes
+  const limit = rateLimit(`signin:${email}`, { maxAttempts: 10, windowMs: 900_000 });
+  if (!limit.success) {
+    return { error: '登入嘗試次數過多，請 15 分鐘後再試' };
+  }
+
+  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {

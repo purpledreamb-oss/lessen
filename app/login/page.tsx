@@ -41,9 +41,13 @@ function LoginForm() {
               id="password"
               name="password"
               type="password"
-              placeholder="至少 6 個字元"
+              placeholder="輸入密碼"
               required
             />
+          </div>
+
+          <div style={{ textAlign: 'right', marginBottom: 12 }}>
+            <Link href="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--sage)' }}>忘記密碼？</Link>
           </div>
 
           {state?.error && <div className="form-error">{state.error}</div>}

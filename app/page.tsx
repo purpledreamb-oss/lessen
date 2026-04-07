@@ -153,6 +153,7 @@ export default function Home() {
             <span className="logo-text">Lessen</span>
           </a>
           <nav className="header-nav">
+            <a href="/browse" className="nav-link">瀏覽幫手</a>
             <a href="/register/helper" className="nav-link">幫手入口</a>
             <a href="/login" className="nav-link">登入</a>
             <a href="/register" className="nav-cta-btn">免費註冊</a>
@@ -227,7 +228,7 @@ export default function Home() {
           </div>
 
           <div className="section-center" style={{ marginTop: '40px' }}>
-            <a href="#helpers" className="btn-outline reveal">查看所有幫手 <span className="btn-arrow">→</span></a>
+            <a href="/browse" className="btn-outline reveal">查看所有幫手 <span className="btn-arrow">→</span></a>
           </div>
         </section>
 

@@ -3,6 +3,8 @@
 import { useActionState, useState } from 'react';
 import { signup, type AuthState } from '@/app/actions/auth';
 import Link from 'next/link';
+import { TAIWAN_CITIES } from '@/lib/taiwan-cities';
+import { getPasswordStrength } from '@/lib/validation';
 
 const categoryOptions = ['學科家教', '才藝老師', '陪玩姊姊', '家事管家', '接送服務', '特殊需求'];
 const tagSuggestions = [
@@ -22,6 +24,8 @@ export default function HelperRegisterPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedCerts, setSelectedCerts] = useState<string[]>([]);
+  const [password, setPassword] = useState('');
+  const pwStrength = password ? getPasswordStrength(password) : null;
 
   const toggle = (
     arr: string[],
@@ -64,7 +68,12 @@ export default function HelperRegisterPage() {
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="password">密碼 *</label>
-                <input id="password" name="password" type="password" placeholder="至少 6 個字元" required />
+                <input id="password" name="password" type="password" placeholder="至少 8 字元，含大小寫英文及數字" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                {pwStrength && (
+                  <div className={`password-strength strength-${pwStrength}`}>
+                    密碼強度：{pwStrength === 'weak' ? '弱' : pwStrength === 'medium' ? '中' : '強'}
+                  </div>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="confirmPassword">確認密碼 *</label>
@@ -81,28 +90,9 @@ export default function HelperRegisterPage() {
                 <label htmlFor="city">縣市 *</label>
                 <select id="city" name="city" required>
                   <option value="">選擇縣市</option>
-                  <option value="台北市">台北市</option>
-                  <option value="新北市">新北市</option>
-                  <option value="桃園市">桃園市</option>
-                  <option value="新竹市">新竹市</option>
-                  <option value="新竹縣">新竹縣</option>
-                  <option value="苗栗縣">苗栗縣</option>
-                  <option value="台中市">台中市</option>
-                  <option value="彰化縣">彰化縣</option>
-                  <option value="南投縣">南投縣</option>
-                  <option value="雲林縣">雲林縣</option>
-                  <option value="嘉義市">嘉義市</option>
-                  <option value="嘉義縣">嘉義縣</option>
-                  <option value="台南市">台南市</option>
-                  <option value="高雄市">高雄市</option>
-                  <option value="屏東縣">屏東縣</option>
-                  <option value="基隆市">基隆市</option>
-                  <option value="宜蘭縣">宜蘭縣</option>
-                  <option value="花蓮縣">花蓮縣</option>
-                  <option value="台東縣">台東縣</option>
-                  <option value="澎湖縣">澎湖縣</option>
-                  <option value="金門縣">金門縣</option>
-                  <option value="連江縣">連江縣</option>
+                  {TAIWAN_CITIES.map((c) => (
+                    <option key={c.name} value={c.name}>{c.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="form-group">

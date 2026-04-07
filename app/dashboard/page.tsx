@@ -41,6 +41,7 @@ export default async function DashboardPage() {
             <span className="logo-text">Lessen</span>
           </Link>
           <div className="dash-header-right">
+            <Link href="/browse" style={{ color: 'var(--sage-dark)', textDecoration: 'none', fontWeight: 500, marginRight: 16 }}>瀏覽幫手</Link>
             <span className="dash-user-name">{profile?.full_name || user.email}</span>
             <form action={signout}>
               <button type="submit" className="dash-logout-btn">登出</button>
