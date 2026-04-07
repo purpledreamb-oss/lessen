@@ -11,7 +11,7 @@ interface HelperListProps {
   helperCounts: Record<string, number>;
 }
 
-const categoryOptions = ['學科家教', '才藝老師', '陪玩姊姊', '家事管家', '接送服務', '特殊需求'];
+const categoryOptions = ['家教', '陪玩', '管家'];
 
 export default function HelperList({ helpers, helperCounts }: HelperListProps) {
   const router = useRouter();

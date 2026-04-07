@@ -5,7 +5,7 @@ import { createOAuthProfile, saveProfileDetails, type OnboardingState } from '@/
 import { TAIWAN_CITIES } from '@/lib/taiwan-cities';
 import Link from 'next/link';
 
-const categoryOptions = ['學科家教', '才藝老師', '陪玩姊姊', '家事管家', '接送服務', '特殊需求'];
+const categoryOptions = ['家教', '陪玩', '管家'];
 const tagSuggestions = [
   '國小數學', '國中數理', '英文', '自然科學', '高中物理', '程式入門',
   '美術創作', '手作', '繪本共讀', '鋼琴', '音樂律動',
