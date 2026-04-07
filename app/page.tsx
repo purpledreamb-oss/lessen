@@ -120,7 +120,7 @@ export default function Home() {
             </div>
             <h1 className="reveal reveal-delay-1">
               你附近的<br />
-              <em>育兒與家務幫手</em>
+              <em>家教·陪玩·管家</em>
             </h1>
             <p className="hero-subtitle reveal reveal-delay-2">
               資歷、評價、專長一目了然。找到最適合你的幫手，直接預約。<br />
