@@ -130,11 +130,6 @@ export default function Home() {
     },
   ];
 
-  const steps = [
-    { num: '01', title: '告訴我們需求', desc: '加入 LINE，30 秒填寫孩子年齡、服務類型、偏好時段。' },
-    { num: '02', title: '收到推薦人選', desc: '30 分鐘內推薦合適幫手，核對證件後提供完整介紹。' },
-    { num: '03', title: '加 LINE 直接聯繫', desc: '媒合成功後雙方直接加 LINE，試做幾次再決定是否長期合作。' },
-  ];
 
   const whyReasons = [
     { icon: '🪪', title: '核對證件', desc: '建議家長在服務前請對方提供身分證件，自行確認身份。' },
@@ -174,7 +169,7 @@ export default function Home() {
         <section className="hero">
           <div className="hero-content">
             <div className="hero-badge reveal">
-              ✨ 免費使用 · 開放註冊 · 30 分鐘媒合
+              ✨ 免費使用 · 開放註冊
             </div>
             <h1 className="reveal reveal-delay-1">
               你附近的<br />
@@ -229,23 +224,6 @@ export default function Home() {
 
           <div className="section-center" style={{ marginTop: '40px' }}>
             <a href="/browse" className="btn-outline reveal">查看所有幫手 <span className="btn-arrow">→</span></a>
-          </div>
-        </section>
-
-        {/* HOW IT WORKS - 3 STEPS */}
-        <section className="steps-section" id="how">
-          <div className="section-center">
-            <h2 className="reveal">簡單三步驟，找到理想幫手</h2>
-            <div className="section-underline reveal reveal-delay-1" />
-          </div>
-          <div className="steps-grid">
-            {steps.map((step, i) => (
-              <div key={i} className={`step-card reveal ${i > 0 ? `reveal-delay-${i}` : ''}`}>
-                <div className="step-num">{step.num}</div>
-                <h3>{step.title}</h3>
-                <p>{step.desc}</p>
-              </div>
-            ))}
           </div>
         </section>
 

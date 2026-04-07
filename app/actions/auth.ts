@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import type { UserRole } from '@/lib/supabase/types';
@@ -75,8 +75,10 @@ export async function signup(
     return { error: '註冊失敗，請稍後再試' };
   }
 
-  // Create minimal profile (details filled in onboarding)
-  const { error: profileError } = await supabase.from('profiles').insert({
+  // Create minimal profile using admin client (bypasses RLS since user may not have confirmed email yet)
+  const adminClient = createAdminClient();
+
+  const { error: profileError } = await adminClient.from('profiles').insert({
     id: authData.user.id,
     email,
     full_name: fullName,
@@ -95,7 +97,7 @@ export async function signup(
 
   // Create empty role-specific profile
   if (role === 'helper') {
-    await supabase.from('helper_profiles').insert({
+    await adminClient.from('helper_profiles').insert({
       user_id: authData.user.id,
       categories: [],
       tags: [],
@@ -109,7 +111,7 @@ export async function signup(
       status: 'approved',
     });
   } else if (role === 'parent') {
-    await supabase.from('parent_profiles').insert({
+    await adminClient.from('parent_profiles').insert({
       user_id: authData.user.id,
       children_ages: [],
       needs: [],
