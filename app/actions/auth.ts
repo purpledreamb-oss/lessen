@@ -106,7 +106,7 @@ export async function signup(
       available_days: [],
       available_time_start: null,
       available_time_end: null,
-      status: 'pending',
+      status: 'approved',
     });
   } else if (role === 'parent') {
     await supabase.from('parent_profiles').insert({

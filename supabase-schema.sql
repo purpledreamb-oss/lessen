@@ -31,7 +31,7 @@ CREATE TABLE helper_profiles (
   available_days TEXT[] NOT NULL DEFAULT '{}',
   available_time_start TEXT,
   available_time_end TEXT,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  status TEXT NOT NULL DEFAULT 'approved' CHECK (status IN ('approved', 'pending')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

@@ -59,7 +59,7 @@ export default function HelperRegisterPage() {
           <button type="submit" className="form-submit" disabled={pending}>
             {pending ? '註冊中...' : '建立帳號'}
           </button>
-          <p className="form-note">建立帳號後，填完服務資料即可自動通過審核開始接案。</p>
+          <p className="form-note">建立帳號後即可上架，填完服務資料讓家長更容易找到你。</p>
         </form>
 
         <p className="auth-switch">

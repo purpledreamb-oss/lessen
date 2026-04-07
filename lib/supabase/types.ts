@@ -26,7 +26,7 @@ export interface HelperProfile {
   available_days: string[];    // 一, 二, 三, etc.
   available_time_start: string | null; // "09:00"
   available_time_end: string | null;   // "18:00"
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'approved' | 'pending';
   created_at: string;
   updated_at: string;
 }

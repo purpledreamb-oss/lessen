@@ -94,7 +94,7 @@ export default function OnboardingPage() {
         <h1>完善你的資料</h1>
         <p className="auth-subtitle">
           {activeRole === 'helper'
-            ? '填寫服務資料，完成後即可自動通過審核開始接案'
+            ? '填寫服務資料，讓家長更容易找到你'
             : '補充資料讓我們更了解你的需求（可稍後再填）'}
         </p>
 

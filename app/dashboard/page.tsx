@@ -93,11 +93,8 @@ export default async function DashboardPage() {
               <h2>幫手資料</h2>
               <div className="dash-info-grid">
                 <div className="dash-info-item">
-                  <span className="dash-info-label">審核狀態</span>
-                  <span className={`dash-status dash-status-${roleProfile.status}`}>
-                    {roleProfile.status === 'pending' ? '審核中' :
-                     roleProfile.status === 'approved' ? '已通過' : '未通過'}
-                  </span>
+                  <span className="dash-info-label">狀態</span>
+                  <span className="dash-status dash-status-approved">已上架</span>
                 </div>
                 <div className="dash-info-item">
                   <span className="dash-info-label">時薪</span>

@@ -51,7 +51,7 @@ export async function createOAuthProfile(
       user_id: user.id,
       categories: [],
       tags: [],
-      status: 'pending',
+      status: 'approved',
     }, { onConflict: 'user_id' });
   } else {
     await supabase.from('parent_profiles').upsert({
@@ -104,8 +104,8 @@ export async function saveProfileDetails(
     const availableTimeEnd = formData.get('availableTimeEnd') as string;
     const bio = sanitizeInput((formData.get('bio') as string) || '', 1000);
 
-    // Auto-approval: if categories selected + city set → approved
-    const status = (categories.length > 0 && city) ? 'approved' : 'pending';
+    // Auto-approval: always approved
+    const status = 'approved';
 
     await supabase
       .from('helper_profiles')
