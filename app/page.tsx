@@ -233,7 +233,7 @@ export default function Home() {
             <div className="why-header">
               <h2 className="reveal">為什麼需要 Lessen？</h2>
               <p className="reveal reveal-delay-1">
-                傳統找陪玩、找家教、找管家，不是靠朋友介紹就是碰運氣。<br />
+                傳統找家教、找陪玩、找管家，不是靠朋友介紹就是碰運氣。<br />
                 Lessen 為雙方創造一個透明、高效的媒合環境。
               </p>
             </div>
