@@ -93,7 +93,7 @@ export default function Home() {
           <a href="/" className="header-logo">
             <span className="logo-icon">L</span>
             <span className="logo-text">Lessen</span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 400, marginLeft: 6 }}>輕一點</span>
+            <span style={{ fontSize: '1rem', color: 'var(--text-secondary)', fontWeight: 400, marginLeft: 6 }}>輕一點</span>
           </a>
           <nav className="header-nav">
             <a href="/browse" className="nav-link">瀏覽幫手</a>
