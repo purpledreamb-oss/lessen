@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const [navScrolled, setNavScrolled] = useState(false);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Scroll detection for nav
   useEffect(() => {
@@ -27,57 +25,6 @@ export default function Home() {
     document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
-
-  // Count-up animation
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const el = entry.target as HTMLElement;
-            const count = parseInt(el.dataset.count || '0');
-            if (!count) return;
-            let current = 0;
-            const step = Math.ceil(count / 40);
-            const timer = setInterval(() => {
-              current += step;
-              if (current >= count) { current = count; clearInterval(timer); }
-              el.textContent = current + (el.dataset.suffix || '+');
-            }, 30);
-            observer.unobserve(el);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-    document.querySelectorAll('.stat-number[data-count]').forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-
-  // Infinite carousel autoplay
-  const startAutoplay = useCallback(() => {
-    if (autoplayRef.current) clearInterval(autoplayRef.current);
-    autoplayRef.current = setInterval(() => {
-      const el = carouselRef.current;
-      if (!el) return;
-      const cardWidth = 300 + 20; // card width + gap
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      if (el.scrollLeft >= maxScroll - 10) {
-        el.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: cardWidth, behavior: 'smooth' });
-      }
-    }, 3500);
-  }, []);
-
-  useEffect(() => {
-    startAutoplay();
-    return () => { if (autoplayRef.current) clearInterval(autoplayRef.current); };
-  }, [startAutoplay]);
-
-  const pauseAutoplay = () => {
-    if (autoplayRef.current) clearInterval(autoplayRef.current);
-  };
 
   const helpers = [
     {
@@ -187,24 +134,11 @@ export default function Home() {
           <div className="hero-glow" />
         </section>
 
-        {/* HELPERS CAROUSEL */}
+        {/* HELPERS */}
         <section className="helpers-section" id="helpers">
-          <div className="section-center">
-            <h2 className="reveal">好評幫手推薦</h2>
-            <p className="section-desc reveal reveal-delay-1">
-              他們都是家長好評最多的幫手，口碑值得信賴
-            </p>
-            <div className="section-underline reveal reveal-delay-1" />
-          </div>
-
-          <div
-            className="carousel-track"
-            ref={carouselRef}
-            onMouseEnter={pauseAutoplay}
-            onMouseLeave={startAutoplay}
-          >
-            {[...helpers, ...helpers].map((helper, i) => (
-              <a key={i} className="helper-card" href="#cta">
+          <div className="carousel-track">
+            {helpers.map((helper, i) => (
+              <a key={i} className="helper-card" href="/browse">
                 <div className="card-top">
                   <div className="card-avatar">{helper.emoji}</div>
                   <div className="card-info">
@@ -222,8 +156,12 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="section-center" style={{ marginTop: '40px' }}>
-            <a href="/browse" className="btn-outline reveal">查看所有幫手 <span className="btn-arrow">→</span></a>
+          <div className="section-center" style={{ marginTop: '32px' }}>
+            <h2 className="reveal">快速瀏覽幫手</h2>
+            <p className="section-desc reveal reveal-delay-1">
+              點選卡片查看更多幫手資訊
+            </p>
+            <a href="/browse" className="btn-outline reveal" style={{ marginTop: '20px' }}>查看所有幫手 <span className="btn-arrow">→</span></a>
           </div>
         </section>
 
