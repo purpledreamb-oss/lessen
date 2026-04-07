@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { TAIWAN_MAP_REGIONS } from '@/lib/taiwan-map-data';
+import { TAIWAN_MAP_REGIONS, TAIWAN_MAP_VIEWBOX } from '@/lib/taiwan-map-data';
 
 interface TaiwanMapProps {
   selectedCity: string | null;
@@ -15,7 +15,7 @@ export default function TaiwanMap({ selectedCity, helperCounts, onCitySelect }: 
   return (
     <div className="taiwan-map-container">
       <svg
-        viewBox="0 0 400 600"
+        viewBox={TAIWAN_MAP_VIEWBOX}
         xmlns="http://www.w3.org/2000/svg"
         className="taiwan-map-svg"
         role="img"
@@ -56,7 +56,7 @@ export default function TaiwanMap({ selectedCity, helperCounts, onCitySelect }: 
                   x={region.labelX}
                   y={region.labelY - 12}
                   textAnchor="middle"
-                  fontSize="10"
+                  fontSize="24"
                   fontWeight="600"
                   fill="var(--text)"
                   pointerEvents="none"
