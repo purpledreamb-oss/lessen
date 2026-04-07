@@ -54,6 +54,12 @@ export default async function DashboardPage() {
         <div className="dash-container">
           <h1>歡迎回來，{profile?.full_name}！</h1>
 
+          {profile && !profile.city && (
+            <div className="dash-banner">
+              <p>你的個人資料尚未完成。<a href="/onboarding">立即完善資料</a>，{profile.role === 'helper' ? '通過審核開始接案' : '讓我們更了解你的需求'}。</p>
+            </div>
+          )}
+
           <div className="dash-card">
             <h2>個人資料</h2>
             <div className="dash-info-grid">

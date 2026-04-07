@@ -5,6 +5,7 @@ import { signin, type AuthState } from '@/app/actions/auth';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import OAuthButtons from '@/components/OAuthButtons';
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -20,6 +21,10 @@ function LoginForm() {
         </Link>
         <h1>歡迎回來</h1>
         <p className="auth-subtitle">登入你的帳號</p>
+
+        <OAuthButtons />
+
+        <div className="auth-divider"><span>或用 Email 登入</span></div>
 
         <form action={action}>
           <input type="hidden" name="redirect" value={redirectTo} />
