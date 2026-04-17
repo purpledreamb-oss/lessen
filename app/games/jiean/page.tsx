@@ -12,6 +12,7 @@ import {
   submitScore,
   LeaderboardEntry,
 } from '@/lib/games/storage';
+import { play, loadMuted, isMuted, setMuted, unlockAudio } from '@/lib/games/sound';
 
 const GAME_KEY = 'jiean';
 const GAME_DURATION = 60; // seconds
@@ -81,22 +82,32 @@ export default function JieanGame() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [finalScore, setFinalScore] = useState(0);
   const [finalStars, setFinalStars] = useState(0);
+  const [muted, setMutedState] = useState(false);
 
   useEffect(() => {
     // Hydrate from localStorage after mount (SSR-safe)
+    loadMuted();
     const loaded = loadSave<Save>(GAME_KEY, defaultSave());
     const name = loaded.playerName || getPlayerName();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrating client-only state from localStorage
     setSave(loaded);
+    setMutedState(isMuted());
     if (name) {
-       
+
       setNameInput(name);
-       
+
       setView('home');
     }
-     
+
     setLeaderboard(getLeaderboard(GAME_KEY));
   }, []);
+
+  function toggleMute() {
+    const next = !muted;
+    setMuted(next);
+    setMutedState(next);
+    if (!next) { unlockAudio(); play('select'); }
+  }
 
   useEffect(() => {
     if (view !== 'name') saveSave(GAME_KEY, save);
@@ -105,12 +116,15 @@ export default function JieanGame() {
   function confirmName() {
     const n = nameInput.trim();
     if (!n) return;
+    unlockAudio();
+    play('select');
     setPlayerName(n);
     setSave(s => ({ ...s, playerName: n }));
     setView('home');
   }
 
   function onGameOver(score: number, stars: number) {
+    play('timeUp');
     setFinalScore(score);
     setFinalStars(stars);
     setSave(s => {
@@ -228,7 +242,12 @@ export default function JieanGame() {
     <div className={styles.shell}>
       <div className={styles.topBar}>
         <Link href="/games" className={styles.backBtn}>← 大廳</Link>
-        <div style={{ fontWeight: 700 }}>{save.playerName}</div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button className={styles.backBtn} onClick={toggleMute} aria-label={muted ? '開聲音' : '關聲音'}>
+            {muted ? '🔇' : '🔊'}
+          </button>
+          <div style={{ fontWeight: 700 }}>{save.playerName}</div>
+        </div>
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 20 }}>
@@ -238,7 +257,7 @@ export default function JieanGame() {
       </div>
 
       <div style={{ textAlign: 'center', margin: '28px 0' }}>
-        <button className={`${styles.bigBtn} ${styles.warm}`} onClick={() => setView('play')} style={{ fontSize: '1.3rem', padding: '18px 40px' }}>
+        <button className={`${styles.bigBtn} ${styles.warm}`} onClick={() => { unlockAudio(); play('startGame'); setView('play'); }} style={{ fontSize: '1.3rem', padding: '18px 40px' }}>
           ▶ 開始打怪
         </button>
         <div style={{ marginTop: 14 }}>
@@ -392,6 +411,8 @@ function ShooterCanvas({
         starsRef.current += 1;
         setScore(scoreRef.current);
         setStars(starsRef.current);
+        play('boom');
+        setTimeout(() => play('star'), 80);
         monstersRef.current = monstersRef.current.filter(m => m.id !== best!.id);
       }
     };
@@ -483,6 +504,7 @@ function ShooterCanvas({
           effectsRef.current.push({
             id: nextIdRef.current++, x: w / 2, y: h - 90, age: 0, life: 300, kind: 'boom'
           });
+          play('hurt');
           monstersRef.current = monstersRef.current.filter(x => x.id !== m.id);
         }
       }

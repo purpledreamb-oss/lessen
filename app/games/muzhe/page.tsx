@@ -31,6 +31,7 @@ import {
   submitScore,
   LeaderboardEntry,
 } from '@/lib/games/storage';
+import { play, loadMuted, isMuted, setMuted, unlockAudio } from '@/lib/games/sound';
 
 const GAME_KEY = 'muzhe';
 
@@ -112,22 +113,33 @@ export default function MuzheGame() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [phase, setPhase] = useState<BattlePhase>('idle');
   const [log, setLog] = useState<{ text: string; kind?: string }[]>([]);
+  const [muted, setMutedState] = useState(false);
 
   // Load save on mount
   useEffect(() => {
+    loadMuted();
     const loaded = loadSave<Save>(GAME_KEY, defaultSave());
     const playerName = loaded.playerName || getPlayerName();
-     
+
     setSave(loaded);
+     
+    setMutedState(isMuted());
     if (playerName) {
-       
+
       setNameInput(playerName);
-       
+
       setView('home');
     }
-     
+
     setLeaderboard(getLeaderboard(GAME_KEY));
   }, []);
+
+  function toggleMute() {
+    const next = !muted;
+    setMuted(next);
+    setMutedState(next);
+    if (!next) { unlockAudio(); play('select'); }
+  }
 
   // Persist save whenever it changes (after initial load)
   useEffect(() => {
@@ -137,6 +149,8 @@ export default function MuzheGame() {
   function confirmName() {
     const name = nameInput.trim();
     if (!name) return;
+    unlockAudio();
+    play('select');
     setPlayerName(name);
     setSave(s => ({ ...s, playerName: name }));
     setView('home');
@@ -157,6 +171,7 @@ export default function MuzheGame() {
     setLog([{ text: `⚔️ ${lvl.name} 開始！` }]);
     setPhase('player');
     setView('battle');
+    play('startGame');
   }
 
   function pushLog(text: string, kind?: string) {
@@ -176,6 +191,10 @@ export default function MuzheGame() {
     const res = computeDamage(me, enemy, skill);
     applyDamage(enemy, res.damage);
     pushLog(res.log, res.effective === 'super' ? 'super' : res.effective === 'weak' ? 'weak' : res.crit ? 'crit' : undefined);
+    if (res.crit) play('crit');
+    else if (res.effective === 'super') play('super');
+    else if (res.effective === 'weak') play('weak');
+    else play('hit');
     setAlly([...ally]);
     setEnemy({ ...enemy });
     if (isDefeated(enemy)) {
@@ -201,6 +220,7 @@ export default function MuzheGame() {
     const res = computeDamage(enemy, target, skill);
     applyDamage(target, res.damage);
     pushLog(res.log, res.effective === 'super' ? 'super' : res.effective === 'weak' ? 'weak' : undefined);
+    play('hurt');
     // regen some MP for all
     ally.forEach(a => regenMp(a, 2));
     regenMp(enemy, 2);
@@ -267,6 +287,7 @@ export default function MuzheGame() {
       setLeaderboard(getLeaderboard(GAME_KEY));
     }
     setPhase(won ? 'victory' : 'defeat');
+    play(won ? 'victory' : 'defeat');
   }
 
   function closeBattle() {
@@ -316,8 +337,13 @@ export default function MuzheGame() {
     <div className={styles.shell}>
       <div className={styles.topBar}>
         <Link href="/games" className={styles.backBtn}>← 大廳</Link>
-        <div style={{ fontWeight: 700 }}>
-          {save.playerName} · ⭐ {save.totalStars}
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button className={styles.backBtn} onClick={toggleMute} aria-label={muted ? '開聲音' : '關聲音'}>
+            {muted ? '🔇' : '🔊'}
+          </button>
+          <div style={{ fontWeight: 700 }}>
+            {save.playerName} · ⭐ {save.totalStars}
+          </div>
         </div>
       </div>
 
