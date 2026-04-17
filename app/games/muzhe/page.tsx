@@ -1,22 +1,26 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import styles from '../games.module.css';
 import {
   ALL_FIGHTERS,
   Fighter,
+  ITEMS,
+  Item,
   LEVELS,
   STARTER_TEAM,
   TYPE_COLOR,
   TYPE_LABEL,
   getFighter,
+  xpForNext,
 } from '@/lib/games/data';
 import {
   BattleUnit,
   aiPickSkill,
   applyDamage,
   computeDamage,
+  healHp,
   isDefeated,
   makeUnit,
   regenMp,
@@ -42,13 +46,21 @@ type Save = {
   cleared: number[]; // level ids
   stars: Record<number, number>; // per-level stars 0-3
   totalStars: number;
+  levels: Record<string, { lv: number; xp: number }>;
+  items: Record<string, number>;
 };
 
-type View = 'name' | 'home' | 'team' | 'dex' | 'level-select' | 'battle';
+type View = 'name' | 'home' | 'team' | 'dex' | 'level-select' | 'story' | 'battle' | 'items';
 
 type BattlePhase = 'idle' | 'player' | 'enemy' | 'victory' | 'defeat';
 
+type DamageNum = { id: number; value: string; kind: 'normal' | 'super' | 'weak' | 'crit' | 'heal'; target: 'ally' | 'enemy' };
+type AnimFlag = { attack?: 'ally' | 'enemy'; hit?: 'ally' | 'enemy'; crit?: boolean };
+type PendingTeamTarget = { item: Item } | null;
+
 function defaultSave(): Save {
+  const levels: Record<string, { lv: number; xp: number }> = {};
+  for (const id of STARTER_TEAM) levels[id] = { lv: 1, xp: 0 };
   return {
     playerName: '',
     owned: [...STARTER_TEAM],
@@ -56,7 +68,13 @@ function defaultSave(): Save {
     cleared: [],
     stars: {},
     totalStars: 0,
+    levels,
+    items: { potion: 2, ether: 1 },
   };
+}
+
+function getLevel(save: Save, id: string): number {
+  return save.levels[id]?.lv ?? 1;
 }
 
 function isSvg(path: string) {
@@ -114,6 +132,13 @@ export default function MuzheGame() {
   const [phase, setPhase] = useState<BattlePhase>('idle');
   const [log, setLog] = useState<{ text: string; kind?: string }[]>([]);
   const [muted, setMutedState] = useState(false);
+  const [turnCount, setTurnCount] = useState(0);
+  const [anim, setAnim] = useState<AnimFlag>({});
+  const [dmgNums, setDmgNums] = useState<DamageNum[]>([]);
+  const [bossWarning, setBossWarning] = useState<string | null>(null);
+  const [pendingItem, setPendingItem] = useState<PendingTeamTarget>(null);
+  const [levelUpMsg, setLevelUpMsg] = useState<string | null>(null);
+  const dmgIdRef = useRef(0);
 
   // Load save on mount
   useEffect(() => {
@@ -156,22 +181,44 @@ export default function MuzheGame() {
     setView('home');
   }
 
-  function startBattle(lid: number) {
+  function openStory(lid: number) {
+    setLevelId(lid);
+    setView('story');
+    play('select');
+  }
+
+  function startBattle() {
+    const lid = levelId;
+    if (lid == null) return;
     const lvl = LEVELS.find(l => l.id === lid);
     if (!lvl) return;
-    const allies = save.team.map(id => makeUnit(getFighter(id)));
-    const enemyUnit = makeUnit(getFighter(lvl.boss));
-    // Boss slight buff
-    enemyUnit.hp = Math.round(enemyUnit.fighter.maxHp * (1 + lid * 0.05));
-    enemyUnit.atkMod = 1 + lid * 0.03;
+    const allies = save.team.map(id => makeUnit(getFighter(id), getLevel(save, id)));
+    const bossLv = Math.max(1, Math.floor(lid * 0.8));
+    const enemyUnit = makeUnit(getFighter(lvl.boss), bossLv);
+    enemyUnit.atkMod = 1 + lid * 0.02;
     setAlly(allies);
     setEnemy(enemyUnit);
     setActiveIdx(allies.findIndex(u => u.hp > 0));
-    setLevelId(lid);
     setLog([{ text: `⚔️ ${lvl.name} 開始！` }]);
     setPhase('player');
+    setTurnCount(0);
+    setAnim({});
+    setDmgNums([]);
+    setBossWarning(null);
+    setPendingItem(null);
     setView('battle');
     play('startGame');
+  }
+
+  function flashDamage(target: 'ally' | 'enemy', value: string, kind: DamageNum['kind']) {
+    const id = ++dmgIdRef.current;
+    setDmgNums(prev => [...prev, { id, value, kind, target }]);
+    setTimeout(() => setDmgNums(prev => prev.filter(d => d.id !== id)), 1200);
+  }
+
+  function flashAnim(flag: AnimFlag, ms = 600) {
+    setAnim(flag);
+    setTimeout(() => setAnim({}), ms);
   }
 
   function pushLog(text: string, kind?: string) {
@@ -190,15 +237,20 @@ export default function MuzheGame() {
     spendMp(me, skill.mpCost);
     const res = computeDamage(me, enemy, skill);
     applyDamage(enemy, res.damage);
+    // Consume damageMul buff if applied (mutation OK — we re-set state via setAlly below)
+    // eslint-disable-next-line react-hooks/immutability
+    if (me.damageMul !== 1) me.damageMul = 1;
     pushLog(res.log, res.effective === 'super' ? 'super' : res.effective === 'weak' ? 'weak' : res.crit ? 'crit' : undefined);
     if (res.crit) play('crit');
     else if (res.effective === 'super') play('super');
     else if (res.effective === 'weak') play('weak');
     else play('hit');
+    flashAnim({ attack: 'ally', hit: 'enemy', crit: res.crit });
+    flashDamage('enemy', String(res.damage), res.crit ? 'crit' : res.effective);
     setAlly([...ally]);
     setEnemy({ ...enemy });
     if (isDefeated(enemy)) {
-      setTimeout(() => endBattle(true), 500);
+      setTimeout(() => endBattle(true), 700);
       setPhase('idle');
       return;
     }
@@ -213,14 +265,30 @@ export default function MuzheGame() {
       endBattle(false);
       return;
     }
-    // eslint-disable-next-line react-hooks/purity -- intentional randomness for enemy AI, runs in timer callback
+    const newTurn = turnCount + 1;
+    setTurnCount(newTurn);
+
+    // Boss special: warn one turn before, cast on the turn
+    const bs = enemy.fighter.bossSpecial;
+    const willUseSpecial = !!bs && newTurn % bs.interval === 0;
+    const willWarn = !!bs && newTurn % bs.interval === bs.interval - 1;
+
+    if (willWarn && bs) {
+      setBossWarning(bs.warning);
+      setTimeout(() => setBossWarning(null), 1500);
+      pushLog(`⚠️ ${bs.warning}`, 'crit');
+    }
+
+    // eslint-disable-next-line react-hooks/purity -- intentional randomness for enemy AI
     const target = aliveAllies[Math.floor(Math.random() * aliveAllies.length)];
-    const skill = aiPickSkill(enemy, target);
-    spendMp(enemy, skill.mpCost);
+    const skill = willUseSpecial && bs ? bs.skill : aiPickSkill(enemy, target);
+    if (!willUseSpecial) spendMp(enemy, skill.mpCost);
     const res = computeDamage(enemy, target, skill);
     applyDamage(target, res.damage);
-    pushLog(res.log, res.effective === 'super' ? 'super' : res.effective === 'weak' ? 'weak' : undefined);
+    pushLog(res.log, res.effective === 'super' ? 'super' : res.effective === 'weak' ? 'weak' : willUseSpecial ? 'crit' : undefined);
     play('hurt');
+    flashAnim({ attack: 'enemy', hit: 'ally', crit: willUseSpecial || res.crit });
+    flashDamage('ally', String(res.damage), willUseSpecial ? 'crit' : res.effective);
     // regen some MP for all
     ally.forEach(a => regenMp(a, 2));
     regenMp(enemy, 2);
@@ -228,7 +296,7 @@ export default function MuzheGame() {
     setEnemy({ ...enemy });
     const stillAlive = ally.filter(u => !isDefeated(u));
     if (stillAlive.length === 0) {
-      setTimeout(() => endBattle(false), 500);
+      setTimeout(() => endBattle(false), 700);
       setPhase('idle');
       return;
     }
@@ -239,6 +307,62 @@ export default function MuzheGame() {
       pushLog(`${ally[nextIdx].fighter.name} 上場！`);
     }
     setPhase('player');
+  }
+
+  // ---- Items ----
+  function beginUseItem(item: Item) {
+    if (phase !== 'player') return;
+    if ((save.items[item.id] ?? 0) <= 0) return;
+    setPendingItem({ item });
+  }
+
+  function cancelItem() { setPendingItem(null); }
+
+  function applyItemTo(targetIdx: number) {
+    if (!pendingItem) return;
+    const { item } = pendingItem;
+    const target = ally[targetIdx];
+    if (!target) return;
+    let used = false;
+    let logText = '';
+    if (item.kind === 'heal' && !isDefeated(target)) {
+      healHp(target, item.amount);
+      flashDamage('ally', `+${item.amount}`, 'heal');
+      used = true;
+      logText = `${target.fighter.name} 喝下藥水，HP +${item.amount}`;
+    } else if (item.kind === 'mp' && !isDefeated(target)) {
+      // eslint-disable-next-line react-hooks/immutability
+      target.mp = Math.min(target.maxMp, target.mp + item.amount);
+      flashDamage('ally', `+${item.amount}MP`, 'heal');
+      used = true;
+      logText = `${target.fighter.name} 補充能量，MP +${item.amount}`;
+    } else if (item.kind === 'revive' && isDefeated(target)) {
+      target.hp = Math.round(target.maxHp * (item.amount / 100));
+      flashDamage('ally', `REVIVE`, 'heal');
+      used = true;
+      logText = `${target.fighter.name} 復活了！HP ${target.hp}`;
+    } else if (item.kind === 'attack-buff') {
+      ally.forEach(a => { if (!isDefeated(a)) a.damageMul = item.amount; });
+      flashDamage('ally', `ATK×${item.amount}`, 'heal');
+      used = true;
+      logText = `全隊進入狂暴狀態！下一次攻擊傷害 ×${item.amount}`;
+    } else {
+      pushLog('對這個對象無效', 'weak');
+      setPendingItem(null);
+      return;
+    }
+    if (used) {
+      setSave(s => ({ ...s, items: { ...s.items, [item.id]: Math.max(0, (s.items[item.id] ?? 0) - 1) } }));
+      pushLog(logText);
+      play('star');
+      setAlly([...ally]);
+    }
+    setPendingItem(null);
+    // Item use consumes the turn
+    if (enemy && !isDefeated(enemy)) {
+      setPhase('enemy');
+      setTimeout(enemyTurn, 700);
+    }
   }
 
   function switchActive(idx: number) {
@@ -265,17 +389,50 @@ export default function MuzheGame() {
       const newStars = Math.max(prevStars, stars);
       const delta = newStars - prevStars;
 
+      // XP: each participating ally earns xp = levelId * 12 + survive bonus
+      const xpEarned = levelId * 12 + aliveAllies * 5;
+      const leveledUp: string[] = [];
+
       setSave(s => {
         const owned = [...s.owned];
         if (lvl.reward && !owned.includes(lvl.reward)) owned.push(lvl.reward);
+
+        const newLevels = { ...s.levels };
+        for (const u of ally) {
+          const id = u.fighter.id;
+          const prev = newLevels[id] ?? { lv: 1, xp: 0 };
+          let lv = prev.lv;
+          let xp = prev.xp + xpEarned;
+          while (xp >= xpForNext(lv) && lv < 15) {
+            xp -= xpForNext(lv);
+            lv++;
+            leveledUp.push(u.fighter.name);
+          }
+          newLevels[id] = { lv, xp };
+        }
+
+        const newItems = { ...s.items };
+        // Initialize level for any newly-owned reward
+        if (lvl.reward && !newLevels[lvl.reward]) newLevels[lvl.reward] = { lv: 1, xp: 0 };
+        if (lvl.itemReward) {
+          newItems[lvl.itemReward] = (newItems[lvl.itemReward] ?? 0) + 1;
+        }
+
         return {
           ...s,
           owned,
           cleared: wasCleared ? s.cleared : [...s.cleared, levelId],
           stars: { ...s.stars, [levelId]: newStars },
           totalStars: s.totalStars + delta,
+          levels: newLevels,
+          items: newItems,
         };
       });
+
+      if (leveledUp.length) {
+        const unique = Array.from(new Set(leveledUp));
+        setLevelUpMsg(`🎉 升級了！${unique.join('、')}`);
+      }
 
       // Submit leaderboard score: total stars * 100 + level cleared * 10
       const newScore = (save.totalStars + delta) * 100 + (save.cleared.length + (wasCleared ? 0 : 1)) * 10;
@@ -446,7 +603,7 @@ export default function MuzheGame() {
                 <div
                   key={lvl.id}
                   className={`${styles.levelCard} ${!unlocked ? styles.locked : ''} ${cleared ? styles.cleared : ''}`}
-                  onClick={() => unlocked && startBattle(lvl.id)}
+                  onClick={() => unlocked && openStory(lvl.id)}
                 >
                   <div style={{ fontWeight: 800, marginBottom: 4 }}>
                     {!unlocked && '🔒 '}{lvl.name}
@@ -485,19 +642,51 @@ export default function MuzheGame() {
         </div>
       )}
 
+      {view === 'story' && levelData && (
+        <div className={styles.storyBox}>
+          <h3>{levelData.name}</h3>
+          <div className={styles.bossShowcase}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={getFighter(levelData.boss).sprite} alt={getFighter(levelData.boss).name} />
+            <div>
+              <div style={{ fontSize: '0.8rem', color: '#ffd43b' }}>BOSS</div>
+              <div style={{ fontWeight: 800, fontSize: '1.1rem' }}>
+                {getFighter(levelData.boss).name}
+                <TypeChip type={getFighter(levelData.boss).type} />
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#9fb3d6' }}>Lv.{Math.max(1, Math.floor(levelData.id * 0.8))}</div>
+            </div>
+          </div>
+          {levelData.story && <p>{levelData.story}</p>}
+          <div style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
+            <button className={`${styles.bigBtn} ${styles.danger}`} onClick={startBattle}>⚔️ 出發！</button>
+            <button className={styles.bigBtn} onClick={() => setView('level-select')}>← 回關卡</button>
+          </div>
+        </div>
+      )}
+
       {view === 'battle' && enemy && (
-        <div className={styles.battleStage}>
+        <div className={`${styles.battleStage} ${anim.crit ? styles.critShake : ''}`}>
           <div className={styles.battleField}>
             <div className={`${styles.battleRow} ${styles.enemy}`}>
-              <div className={styles.fighterCard}>
+              <div
+                className={`${styles.fighterCard} ${anim.attack === 'enemy' ? styles.attackEnemy : ''} ${anim.hit === 'enemy' ? styles.hitEnemy : ''}`}
+                style={{ position: 'relative' }}
+              >
                 <Portrait fighter={enemy.fighter} />
                 <div className={styles.fighterInfo}>
                   <div className={styles.fighterName}>
                     {enemy.fighter.name}
                     <TypeChip type={enemy.fighter.type} />
+                    <span className={styles.levelBadge}>Lv{enemy.level}</span>
                   </div>
                   <FighterBars unit={enemy} />
                 </div>
+                {dmgNums.filter(d => d.target === 'enemy').map(d => (
+                  <span key={d.id} className={`${styles.damageNumber} ${styles[d.kind] ?? ''}`} style={{ left: '50%', top: '30%' }}>
+                    {d.value}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -509,18 +698,29 @@ export default function MuzheGame() {
 
             <div className={`${styles.battleRow} ${styles.ally}`}>
               {ally[activeIdx] && (
-                <div className={styles.fighterCard}>
+                <div
+                  className={`${styles.fighterCard} ${anim.attack === 'ally' ? styles.attackAlly : ''} ${anim.hit === 'ally' ? styles.hitAlly : ''}`}
+                  style={{ position: 'relative' }}
+                >
                   <Portrait fighter={ally[activeIdx].fighter} />
                   <div className={styles.fighterInfo}>
                     <div className={styles.fighterName}>
                       {ally[activeIdx].fighter.name}
                       <TypeChip type={ally[activeIdx].fighter.type} />
+                      <span className={styles.levelBadge}>Lv{ally[activeIdx].level}</span>
                     </div>
                     <FighterBars unit={ally[activeIdx]} />
                   </div>
+                  {dmgNums.filter(d => d.target === 'ally').map(d => (
+                    <span key={d.id} className={`${styles.damageNumber} ${styles[d.kind] ?? ''}`} style={{ left: '50%', top: '30%' }}>
+                      {d.value}
+                    </span>
+                  ))}
                 </div>
               )}
             </div>
+
+            {bossWarning && <div className={styles.bossWarning}>⚠️ {bossWarning}</div>}
 
             {(phase === 'victory' || phase === 'defeat') && (
               <div className={styles.victoryOverlay}>
@@ -536,55 +736,110 @@ export default function MuzheGame() {
                     <div style={{ fontWeight: 700 }}>{rewardFighter.name}</div>
                   </div>
                 )}
+                {phase === 'victory' && levelData?.itemReward && (
+                  <div style={{ marginBottom: 12 }}>
+                    獲得道具 {ITEMS[levelData.itemReward].emoji} {ITEMS[levelData.itemReward].name}！
+                  </div>
+                )}
                 {phase === 'victory' && (
                   <div style={{ marginBottom: 12, color: '#ffd43b', fontSize: '1.4rem' }}>
                     {'⭐'.repeat(ally.filter(u => !isDefeated(u)).length >= 3 ? 3 : ally.filter(u => !isDefeated(u)).length >= 2 ? 2 : 1)}
                   </div>
                 )}
-                <button className={styles.bigBtn} onClick={closeBattle}>回主頁</button>
+                {phase === 'victory' && levelUpMsg && (
+                  <div style={{ marginBottom: 12, color: '#c084fc' }}>{levelUpMsg}</div>
+                )}
+                <button className={styles.bigBtn} onClick={() => { setLevelUpMsg(null); closeBattle(); }}>回主頁</button>
               </div>
             )}
           </div>
 
           {/* Action Panel */}
           <div style={{ marginTop: 14 }}>
-            <div className={styles.skillGrid}>
-              {ally[activeIdx]?.fighter.skills.map((s, i) => (
-                <button
-                  key={i}
-                  className={styles.skillBtn}
-                  disabled={phase !== 'player' || (ally[activeIdx]?.mp ?? 0) < s.mpCost}
-                  onClick={() => playerAttack(i)}
-                >
-                  <div className={styles.skillName}>{s.name}</div>
-                  <div className={styles.skillMeta}>
-                    威力 {s.power} · MP {s.mpCost}
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            {ally.length > 1 && (
-              <>
-                <div style={{ marginTop: 14, fontSize: '0.9rem', color: '#9fb3d6' }}>隊伍（點擊換人，會讓對手攻擊一次）</div>
+            {pendingItem ? (
+              <div>
+                <div style={{ marginBottom: 8, fontWeight: 700 }}>
+                  選擇對象使用 {pendingItem.item.emoji} {pendingItem.item.name}
+                  <button className={styles.backBtn} style={{ marginLeft: 8 }} onClick={cancelItem}>取消</button>
+                </div>
                 <div className={styles.teamTray}>
                   {ally.map((u, i) => (
                     <div
                       key={i}
-                      className={`${styles.teamSlot} ${i === activeIdx ? styles.active : ''} ${isDefeated(u) ? styles.dead : ''}`}
-                      onClick={() => switchActive(i)}
+                      className={`${styles.teamSlot} ${isDefeated(u) ? styles.dead : ''}`}
+                      onClick={() => applyItemTo(i)}
+                      style={{ cursor: 'pointer' }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={u.fighter.sprite} alt={u.fighter.name} style={isSvg(u.fighter.sprite) ? { filter: 'brightness(1.4)' } : {}} />
                       <div className={styles.miniName}>
                         {u.fighter.name}
                         <div style={{ fontSize: '0.65rem', color: '#9fb3d6' }}>
-                          {u.hp}/{u.fighter.maxHp}
+                          {u.hp}/{u.maxHp}
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
+              </div>
+            ) : (
+              <>
+                <div className={styles.skillGrid}>
+                  {ally[activeIdx]?.fighter.skills.map((s, i) => (
+                    <button
+                      key={i}
+                      className={styles.skillBtn}
+                      disabled={phase !== 'player' || (ally[activeIdx]?.mp ?? 0) < s.mpCost}
+                      onClick={() => playerAttack(i)}
+                    >
+                      <div className={styles.skillName}>{s.name}</div>
+                      <div className={styles.skillMeta}>
+                        威力 {s.power} · MP {s.mpCost}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className={styles.itemBar}>
+                  {Object.values(ITEMS).map(item => {
+                    const count = save.items[item.id] ?? 0;
+                    return (
+                      <button
+                        key={item.id}
+                        className={styles.itemBtn}
+                        disabled={phase !== 'player' || count <= 0}
+                        onClick={() => beginUseItem(item)}
+                        title={item.description}
+                      >
+                        {item.emoji} {item.name}<span className={styles.itemCount}>×{count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {ally.length > 1 && (
+                  <>
+                    <div style={{ marginTop: 14, fontSize: '0.9rem', color: '#9fb3d6' }}>隊伍（點擊換人，會讓對手攻擊一次）</div>
+                    <div className={styles.teamTray}>
+                      {ally.map((u, i) => (
+                        <div
+                          key={i}
+                          className={`${styles.teamSlot} ${i === activeIdx ? styles.active : ''} ${isDefeated(u) ? styles.dead : ''}`}
+                          onClick={() => switchActive(i)}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={u.fighter.sprite} alt={u.fighter.name} style={isSvg(u.fighter.sprite) ? { filter: 'brightness(1.4)' } : {}} />
+                          <div className={styles.miniName}>
+                            {u.fighter.name}
+                            <div style={{ fontSize: '0.65rem', color: '#9fb3d6' }}>
+                              {u.hp}/{u.maxHp}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>

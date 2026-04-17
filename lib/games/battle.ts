@@ -1,11 +1,17 @@
-import { Fighter, Skill, advantage, ElementType } from './data';
+import { Fighter, Skill, advantage, ElementType, statMultiplier } from './data';
 
 export type BattleUnit = {
   fighter: Fighter;
+  level: number;
   hp: number;
   mp: number;
+  maxHp: number;
+  maxMp: number;
+  atk: number;
+  def: number;
   atkMod: number; // multiplier
   defMod: number;
+  damageMul: number; // extra damage multiplier (e.g. berserk)
 };
 
 export type DamageResult = {
@@ -16,8 +22,18 @@ export type DamageResult = {
   log: string;
 };
 
-export function makeUnit(f: Fighter): BattleUnit {
-  return { fighter: f, hp: f.maxHp, mp: f.maxMp, atkMod: 1, defMod: 1 };
+export function makeUnit(f: Fighter, level = 1): BattleUnit {
+  const m = statMultiplier(level);
+  const maxHp = Math.round(f.maxHp * m);
+  const maxMp = Math.round(f.maxMp * m);
+  const atk = Math.round(f.atk * m);
+  const def = Math.round(f.def * m);
+  return {
+    fighter: f, level,
+    hp: maxHp, mp: maxMp,
+    maxHp, maxMp, atk, def,
+    atkMod: 1, defMod: 1, damageMul: 1,
+  };
 }
 
 export function computeDamage(
@@ -26,7 +42,6 @@ export function computeDamage(
   skill: Skill
 ): DamageResult {
   if (skill.power === 0) {
-    // utility skill (e.g. buff)
     return {
       damage: 0,
       effective: 'normal',
@@ -36,10 +51,10 @@ export function computeDamage(
     };
   }
   const adv = advantage(skill.element, defender.fighter.type);
-  const base = skill.power + attacker.fighter.atk * attacker.atkMod - defender.fighter.def * defender.defMod * 0.5;
+  const base = skill.power + attacker.atk * attacker.atkMod - defender.def * defender.defMod * 0.5;
   const crit = Math.random() < 0.12;
   const critMult = crit ? 1.5 : 1;
-  const raw = Math.max(4, base) * adv * critMult;
+  const raw = Math.max(4, base) * adv * critMult * attacker.damageMul;
   const damage = Math.round(raw + Math.random() * 4);
   const effective: DamageResult['effective'] = adv > 1 ? 'super' : adv < 1 ? 'weak' : 'normal';
   let log = `${attacker.fighter.name} 使用 ${skill.name}！`;
@@ -51,7 +66,6 @@ export function computeDamage(
 }
 
 export function aiPickSkill(enemy: BattleUnit, target: BattleUnit): Skill {
-  // Prefer type-advantaged high-power skill if MP allows; else basic attack.
   const affordable = enemy.fighter.skills.filter(s => s.mpCost <= enemy.mp);
   const targetType: ElementType = target.fighter.type;
   const scored = affordable.map(s => {
@@ -71,7 +85,11 @@ export function spendMp(unit: BattleUnit, cost: number) {
 }
 
 export function regenMp(unit: BattleUnit, amount: number = 3) {
-  unit.mp = Math.min(unit.fighter.maxMp, unit.mp + amount);
+  unit.mp = Math.min(unit.maxMp, unit.mp + amount);
+}
+
+export function healHp(unit: BattleUnit, amount: number) {
+  unit.hp = Math.min(unit.maxHp, unit.hp + amount);
 }
 
 export function isDefeated(unit: BattleUnit) {

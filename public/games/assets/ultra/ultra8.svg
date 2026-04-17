@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-name="澤光">
+<g stroke="#1a1a1a" stroke-width="2.5" stroke-linejoin="round">
+  <!-- crest / headpiece -->
+  <path d="M232 85 L280 85 L232 108 L280 108" fill="none" stroke="#F9A825" stroke-width="7" stroke-linejoin="round"/>
+  <!-- Head -->
+  <ellipse cx="256" cy="140" rx="62" ry="70" fill="#D9D9DC"/>
+  <!-- Face dark area -->
+  <path d="M202 132 Q256 112 310 132 L300 172 Q256 180 212 172 Z" fill="#141414" stroke="none"/>
+  <!-- Eyes -->
+  <ellipse cx="236" cy="148" rx="11" ry="15" fill="#FFD700"/>
+  <ellipse cx="276" cy="148" rx="11" ry="15" fill="#FFD700"/>
+  <ellipse cx="236" cy="150" rx="4" ry="6" fill="#fff" stroke="none"/>
+  <ellipse cx="276" cy="150" rx="4" ry="6" fill="#fff" stroke="none"/>
+  <!-- Mouth slot -->
+  <rect x="248" y="190" width="16" height="6" fill="#141414" stroke="none"/>
+  <!-- Neck -->
+  <rect x="240" y="206" width="32" height="18" fill="#D9D9DC"/>
+  <!-- Torso -->
+  <path d="M194 224 L318 224 L324 360 L188 360 Z" fill="#D9D9DC"/>
+  <!-- Accent chest stripes -->
+  <path d="M206 228 L250 228 L254 268 L212 268 Z" fill="#F9A825" opacity="0.9"/>
+  <path d="M262 228 L306 228 L300 268 L258 268 Z" fill="#F9A825" opacity="0.9"/>
+  <!-- Belly stripe -->
+  <rect x="210" y="330" width="92" height="30" fill="#F9A825" opacity="0.8"/>
+  <!-- Color timer -->
+  <g fill="#E53935" stroke="#fff" stroke-width="3"><circle cx="256" cy="290" r="13" /></g>
+  <!-- Arms -->
+  <path d="M170 230 L194 224 L192 360 L160 366 Z" fill="#D9D9DC"/>
+  <path d="M342 230 L318 224 L320 360 L352 366 Z" fill="#D9D9DC"/>
+  <!-- Arm accent bands -->
+  <rect x="158" y="280" width="40" height="14" fill="#F9A825"/>
+  <rect x="318" y="280" width="40" height="14" fill="#F9A825"/>
+  <!-- Hands/fists -->
+  <ellipse cx="176" cy="372" rx="20" ry="18" fill="#D9D9DC"/>
+  <ellipse cx="336" cy="372" rx="20" ry="18" fill="#D9D9DC"/>
+  <!-- Legs -->
+  <path d="M198 360 L254 360 L250 480 L198 480 Z" fill="#D9D9DC"/>
+  <path d="M258 360 L314 360 L314 480 L262 480 Z" fill="#D9D9DC"/>
+  <!-- Boots -->
+  <path d="M192 458 L258 458 L258 490 L190 490 Z" fill="#F9A825"/>
+  <path d="M254 458 L320 458 L322 490 L254 490 Z" fill="#F9A825"/>
+  
+</g>
+</svg>

@@ -21,12 +21,19 @@ export default function Credits() {
         </div>
 
         <div className={styles.leaderBoard}>
-          <p><strong>恐龍與戰士圖示</strong></p>
+          <p><strong>恐龍圖示</strong></p>
           <p style={{ fontSize: '0.9rem', color: '#9fb3d6' }}>
-            恐龍與戰士造型取自 <a href="https://game-icons.net" style={{ color: '#4dabf7' }}>game-icons.net</a>，作者包含 Delapouite、Lorc 等，採 CC BY 3.0 授權。
+            恐龍造型取自 <a href="https://game-icons.net" style={{ color: '#4dabf7' }}>game-icons.net</a>，作者包含 Delapouite、Lorc 等，採 CC BY 3.0 授權。
           </p>
           <p style={{ fontSize: '0.85rem', color: '#9fb3d6', marginTop: 4 }}>
             Icons by Delapouite &amp; Lorc under CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/)
+          </p>
+        </div>
+
+        <div className={styles.leaderBoard}>
+          <p><strong>奧特曼（光之戰士）圖示</strong></p>
+          <p style={{ fontSize: '0.9rem', color: '#9fb3d6' }}>
+            8 隻光之戰士皆為本專案自行以 SVG 繪製的「致敬風」造型（基礎人形 + 色彩時晶 + 頭冠變化），非任何官方奧特曼形象。僅供家庭內部娛樂使用。
           </p>
         </div>
 
